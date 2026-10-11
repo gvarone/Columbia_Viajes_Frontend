@@ -34,7 +34,10 @@ src/main/java/com/columbia/viajes/
 │   ├── LoginRequest.java       (aún sin usar)
 │   └── LoginResponse.java      (aún sin usar)
 └── views/                  Pantallas Vaadin
+    └── SesionUsuario.java
+└── security/               Autenticación
     └── UsuariosView.java
+    └── LoginView.java
 ```
 
 ## Configuración
@@ -65,12 +68,6 @@ backend.url=http://localhost:8080/api
 mvn spring-boot:run
 ```
 
-Si tenés varias versiones de Java instaladas, forzar la 21:
-
-```bash
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn spring-boot:run
-```
-
 La primera ejecución tarda varios minutos porque Vaadin descarga las dependencias del frontend.
 
 3. Abrir `http://localhost:8081/usuarios`.
@@ -79,19 +76,15 @@ La primera ejecución tarda varios minutos porque Vaadin descarga las dependenci
 
 - **`/usuarios`**: tabla (`Grid`) con el listado de usuarios obtenido desde `GET /api/usuarios` del backend. Si el backend no responde, muestra una notificación de error.
 
-Con esto queda verificada la conexión front ↔ back.
-
 ## Problemas conocidos / notas
 
-- El wrapper de Maven (`mvnw`) no funciona porque falta la carpeta `.mvn/`. Usar el `mvn` del sistema, o regenerarlo con `mvn wrapper:wrapper`.
-- Si el backend responde `401`/`403`, es Spring Security rechazando la llamada. Hay que ajustar la configuración de seguridad del backend o autenticar desde el front.
 - Si la tabla aparece con columnas vacías, los nombres de los campos de `UsuarioResponse` no coinciden con los del JSON del backend.
-- El login del backend (`POST /api/auth/login`) devuelve `mensaje`, `nombre`, `idRol` y `token: null`, es decir, no emite token. Los DTOs `LoginRequest` y `LoginResponse` quedaron preparados pero la pantalla de login todavía no está implementada.
 
 ## Pendiente
 
+- [ ] Definir con el backend el esquema de autenticación (token, sesión o Basic Auth).
 - [ ] Pantalla de login y manejo de sesión.
 - [ ] Control de acceso por rol (cliente, vendedor, administrador, dueño).
 - [ ] ABM de sucursales, hoteles, vuelos y turistas.
 - [ ] Carga y consulta de reservas.
-- [ ] Definir con el backend el esquema de autenticación (token, sesión o Basic Auth).
+
