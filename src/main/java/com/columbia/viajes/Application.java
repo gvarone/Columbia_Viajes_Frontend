@@ -1,4 +1,4 @@
-package com.columbia;
+package com.columbia.viajes;
 
 import com.vaadin.flow.theme.aura.Aura;
 import org.springframework.boot.SpringApplication;
