@@ -1,0 +1,44 @@
+# --- Maven / Java ---
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# --- Gradle (por si usas Gradle en lugar de Maven) ---
+.gradle/
+build/
+
+# --- IDEs ---
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse / STS
+.settings/
+.classpath
+.project
+.sts4-cache/
+
+# VS Code
+.vscode/
+
+# --- Vaadin / Node / Frontend ---
+node_modules/
+pnpm-lock.yaml
+.pnpm-store/
+frontend/generated/
+vite.generated.ts
+vite.config.ts.timestamp-*
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+.vscode/
