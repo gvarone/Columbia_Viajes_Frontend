@@ -1,13 +1,14 @@
 package com.columbia.viajes.views;
 
 import com.columbia.viajes.security.SesionUsuario;
+import com.columbia.viajes.views.base.MainLayout;
 import com.columbia.viajes.views.base.ProtectedView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.Route;
 
-@Route("")
+@Route(value = "", layout = MainLayout.class)
 public class HomeView extends ProtectedView {
 
     public HomeView() {
@@ -21,11 +22,6 @@ public class HomeView extends ProtectedView {
         String nombreUsuario = SesionUsuario.getUsuario() != null ? SesionUsuario.getUsuario().nombre() : "Usuario";
         Paragraph saludo = new Paragraph("Sesión iniciada como: " + nombreUsuario);
 
-        Button logoutButton = new Button("Cerrar Sesión", e -> {
-            SesionUsuario.cerrarSesion();
-            getUI().ifPresent(ui -> ui.navigate("login"));
-        });
-
-        add(titulo, saludo, logoutButton);
+        add(titulo, saludo);
     }
 }

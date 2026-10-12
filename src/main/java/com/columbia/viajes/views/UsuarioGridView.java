@@ -3,6 +3,7 @@ package com.columbia.viajes.views;
 import com.columbia.viajes.client.UsuarioClient;
 import com.columbia.viajes.dto.response.UsuarioResponse;
 import com.columbia.viajes.security.SesionUsuario;
+import com.columbia.viajes.views.base.MainLayout;
 import com.columbia.viajes.views.base.ProtectedView;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
@@ -11,7 +12,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route("usuarios")
+@Route(value = "usuarios", layout = MainLayout.class)
 @PageTitle("Usuarios")
 public class UsuarioGridView extends ProtectedView {
 
