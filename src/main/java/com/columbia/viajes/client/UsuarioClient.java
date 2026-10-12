@@ -1,6 +1,7 @@
 package com.columbia.viajes.client;
 
-import com.columbia.viajes.dto.UsuarioResponse;
+import com.columbia.viajes.dto.response.UsuarioResponse;
+import com.columbia.viajes.security.SesionUsuario;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,8 +18,17 @@ public class UsuarioClient {
     }
 
     public List<UsuarioResponse> listar() {
+        // 1. Obtenemos el JWT activo de la sesión de Vaadin
+        String token = SesionUsuario.getToken();
+
+        if (token == null) {
+            throw new IllegalStateException("No hay un token activo en la sesión.");
+        }
+
+        // 2. Ejecutamos la petición añadiendo el header de autorización
         return restClient.get()
                 .uri("/usuarios")
+                .header("Authorization", "Bearer " + token) // <--- Aquí inyectamos el JWT
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<UsuarioResponse>>() {});
     }

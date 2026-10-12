@@ -1,5 +1,5 @@
 
-package com.columbia.viajes.dto;
+package com.columbia.viajes.dto.response;
 
 import java.time.LocalDateTime;
 

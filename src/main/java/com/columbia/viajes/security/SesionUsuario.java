@@ -1,6 +1,6 @@
 package com.columbia.viajes.security;
 
-import com.columbia.viajes.dto.LoginResponse;
+import com.columbia.viajes.dto.response.LoginResponse;
 import com.vaadin.flow.server.VaadinSession;
 
 public final class SesionUsuario {
@@ -16,6 +16,11 @@ public final class SesionUsuario {
     public static LoginResponse getUsuario() {
         VaadinSession session = VaadinSession.getCurrent();
         return session == null ? null : (LoginResponse) session.getAttribute(USUARIO);
+    }
+    
+    public static String getToken() {
+        LoginResponse usuario = getUsuario();
+        return (usuario != null) ? usuario.token() : null;
     }
 
     public static boolean estaLogueado() {
