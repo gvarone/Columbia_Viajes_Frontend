@@ -88,10 +88,6 @@ La primera ejecución tarda varios minutos porque Vaadin descarga las dependenci
 
 - **`Grillas`**: Visualización de catálogos y entidades (Usuarios, Sucursales) mediante componentes de datos de Vaadin conectados a sus respectivos clientes HTTP.
 
-## Problemas conocidos / notas
-
-- Si la tabla aparece con columnas vacías, los nombres de los campos de `UsuarioResponse` no coinciden con los del JSON del backend.
-
 ## Pendiente
 
 - [ ] Completar pantallas de gestión para hoteles, vuelos y turistas.
