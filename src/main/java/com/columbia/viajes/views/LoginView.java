@@ -3,15 +3,16 @@ package com.columbia.viajes.views;
 import com.columbia.viajes.dto.request.LoginRequest;
 import com.columbia.viajes.dto.response.LoginResponse;
 import com.columbia.viajes.security.SesionUsuario;
+import com.columbia.viajes.views.base.ProtectedView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent; 
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -21,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Route("login")
 @PageTitle("Login | Columbia Viajes")
-public class LoginView extends VerticalLayout {
+public class LoginView extends ProtectedView {
 
     private final RestTemplate restTemplate;
 
@@ -77,6 +78,7 @@ public class LoginView extends VerticalLayout {
         });
 
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        loginButton.addClickShortcut(Key.ENTER);
         loginButton.setWidth("300px");
 
         add(titulo, usuarioField, passwordField, loginButton);
