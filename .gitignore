@@ -30,6 +30,11 @@ build/
 # VS Code
 .vscode/
 
+# NetBeans
+nb-configuration.xml
+nbactions.xml
+nbproject/
+
 # --- Vaadin / Node / Frontend ---
 node_modules/
 pnpm-lock.yaml
