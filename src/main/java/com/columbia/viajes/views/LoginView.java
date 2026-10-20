@@ -1,33 +1,36 @@
 package com.columbia.viajes.views;
 
-import com.columbia.viajes.dto.request.LoginRequest;
-import com.columbia.viajes.dto.response.LoginResponse;
-import com.columbia.viajes.security.SesionUsuario;
-import com.columbia.viajes.views.base.ProtectedView;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent; 
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginI18n;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinServletRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.spring.security.AuthenticationContext;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.web.WebAttributes;
 
+/**
+ * El formulario hace POST a /login y lo procesa Spring Security
+ * (ver SecurityConfig y BackendAuthenticationProvider).
+ */
 @Route("login")
 @PageTitle("Login | Columbia Viajes")
-public class LoginView extends ProtectedView {
+@AnonymousAllowed
+public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final RestTemplate restTemplate;
+    private final AuthenticationContext authContext;
+    private final LoginForm login = new LoginForm();
+    private final LoginI18n i18n = crearI18n();
 
-    public LoginView(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public LoginView(AuthenticationContext authContext) {
+        this.authContext = authContext;
 
         setSizeFull();
         setAlignItems(FlexComponent.Alignment.CENTER);
@@ -36,56 +39,45 @@ public class LoginView extends ProtectedView {
         H1 titulo = new H1("Columbia Viajes");
         titulo.getStyle().set("color", "var(--lumo-primary-color)");
 
-        TextField usuarioField = new TextField("Usuario");
-        usuarioField.setRequiredIndicatorVisible(true);
-        usuarioField.setWidth("300px");
+        login.setAction("login");
+        login.setForgotPasswordButtonVisible(false);
+        login.setI18n(i18n);
 
-        PasswordField passwordField = new PasswordField("Contraseña");
-        passwordField.setRequiredIndicatorVisible(true);
-        passwordField.setWidth("300px");
-
-        Button loginButton = new Button("Iniciar Sesión", event -> {
-            String nombre = usuarioField.getValue();
-            String contrasenia = passwordField.getValue();
-
-            if (nombre.isEmpty() || contrasenia.isEmpty()) {
-                mostrarError("Por favor, complete todos los campos");
-                return;
-            }
-            try {
-                String url = "http://localhost:8080/api/auth/login";
-                LoginRequest requestBody = new LoginRequest(nombre, contrasenia);
-                ResponseEntity<LoginResponse> response = restTemplate.postForEntity(
-                        url, 
-                        requestBody, 
-                        LoginResponse.class
-                );
-
-                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    LoginResponse loginResponse = response.getBody();
-                    SesionUsuario.iniciar(loginResponse);
-                    Notification.show("¡Bienvenido, " + loginResponse.nombre() + "!", 3000, Notification.Position.TOP_CENTER)
-                            .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-
-                    getUI().ifPresent(ui -> ui.navigate(""));
-                }
-
-            } catch (HttpClientErrorException.Unauthorized e) {
-                mostrarError("Usuario o contraseña incorrectos");
-            } catch (Exception e) {
-                mostrarError("Error al conectar con el servidor: " + e.getMessage());
-            }
-        });
-
-        loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        loginButton.addClickShortcut(Key.ENTER);
-        loginButton.setWidth("300px");
-
-        add(titulo, usuarioField, passwordField, loginButton);
+        add(titulo, login);
     }
 
-    private void mostrarError(String mensaje) {
-        Notification.show(mensaje, 4000, Notification.Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (authContext.isAuthenticated()) {
+            event.forwardTo(HomeView.class);
+            return;
+        }
+        if (event.getLocation().getQueryParameters().getParameters().containsKey("error")) {
+            if (!esErrorDeCredenciales()) {
+                i18n.getErrorMessage().setTitle("Servidor no disponible");
+                i18n.getErrorMessage().setMessage("No se pudo conectar con el servidor. Intentá más tarde.");
+                login.setI18n(i18n);
+            }
+            login.setError(true);
+        }
+    }
+
+    /** Spring Security guarda en la sesión la última excepción de login. */
+    private boolean esErrorDeCredenciales() {
+        WrappedSession sesion = VaadinSession.getCurrent().getSession();
+        Object excepcion = sesion.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+        sesion.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+        return excepcion == null || excepcion instanceof BadCredentialsException;
+    }
+
+    private static LoginI18n crearI18n() {
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.getForm().setTitle("Iniciar sesión");
+        i18n.getForm().setUsername("Usuario");
+        i18n.getForm().setPassword("Contraseña");
+        i18n.getForm().setSubmit("Ingresar");
+        i18n.getErrorMessage().setTitle("Datos incorrectos");
+        i18n.getErrorMessage().setMessage("Usuario o contraseña incorrectos.");
+        return i18n;
     }
 }

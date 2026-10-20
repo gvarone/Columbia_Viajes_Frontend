@@ -2,19 +2,23 @@ package com.columbia.viajes.views;
 
 import com.columbia.viajes.client.SucursalClient;
 import com.columbia.viajes.dto.response.SucursalResponse;
-import com.columbia.viajes.security.SesionUsuario;
+import com.columbia.viajes.security.Roles;
 import com.columbia.viajes.views.base.MainLayout;
-import com.columbia.viajes.views.base.ProtectedView;
+import com.columbia.viajes.views.base.Notificaciones;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.RolesAllowed;
+import org.springframework.web.client.RestClientException;
 
 @Route(value = "sucursales", layout = MainLayout.class)
-@PageTitle("Sucursales")
-public class SucursalGridView extends ProtectedView {
+@PageTitle("Sucursales | Columbia Viajes")
+@RolesAllowed({Roles.ADMIN, Roles.DUENIO})
+public class SucursalGridView extends VerticalLayout implements BeforeEnterObserver {
 
     private final SucursalClient client;
     private final Grid<SucursalResponse> grid = new Grid<>();
@@ -22,10 +26,9 @@ public class SucursalGridView extends ProtectedView {
     public SucursalGridView(SucursalClient client) {
         this.client = client;
 
-        // Columnas del Grid
-        grid.addColumn(SucursalResponse::id).setHeader("ID");
+        grid.addColumn(SucursalResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(SucursalResponse::direccion).setHeader("Dirección");
-        grid.addColumn(SucursalResponse::email).setHeader("email");
+        grid.addColumn(SucursalResponse::email).setHeader("Email");
         grid.addColumn(SucursalResponse::telefono).setHeader("Teléfono");
 
         add(new H2("Sucursales"), grid);
@@ -34,17 +37,11 @@ public class SucursalGridView extends ProtectedView {
     }
 
     @Override
-    protected void onBeforeEnter(BeforeEnterEvent event) {
-        // La clase base 'ProtectedView' ya validó el login. 
+    public void beforeEnter(BeforeEnterEvent event) {
         try {
             grid.setItems(client.listar());
-        } catch (Exception e) {
-            Notification.show("No se pudo conectar con el backend o token expirado: " + e.getMessage(), 
-                    5000, Notification.Position.TOP_CENTER);
-            
-            // Si el backend rechaza la petición por token vencido/inválido:
-            SesionUsuario.cerrarSesion();
-            event.rerouteTo("login");
+        } catch (RestClientException e) {
+            Notificaciones.error("No se pudieron cargar las sucursales", e);
         }
     }
 }

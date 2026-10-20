@@ -2,7 +2,7 @@ package com.columbia.viajes.views;
 
 import com.columbia.viajes.security.SesionUsuario;
 import com.columbia.viajes.views.base.MainLayout;
-import com.columbia.viajes.views.base.ProtectedView;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -11,54 +11,65 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.columbia.viajes.security.enums.RolEnum.ADMIN;
+import static com.columbia.viajes.security.enums.RolEnum.DUENIO;
+import static com.columbia.viajes.security.enums.RolEnum.VENDEDOR;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Inicio | Columbia Viajes")
-public class HomeView extends ProtectedView {
+@PermitAll
+public class HomeView extends VerticalLayout {
 
     public HomeView() {
         setPadding(true);
         setSpacing(true);
 
-        var usuario = SesionUsuario.getUsuario();
-        var rol = SesionUsuario.getRol();
-        String nombre = usuario != null ? usuario.nombre() : "Usuario";
+        String nombre = SesionUsuario.getUsuario().map(u -> u.nombre()).orElse("Usuario");
+        String rol = SesionUsuario.getRol() != null ? SesionUsuario.getRol().getNombreEnDb() : "";
 
         H1 titulo = new H1("Bienvenido, " + nombre);
         titulo.getStyle().set("margin", "0");
-        Paragraph subtitulo = new Paragraph(
-                "Sesión iniciada como " + rol + ".");
+        Paragraph subtitulo = new Paragraph("Sesión iniciada como " + rol + ".");
         subtitulo.getStyle().set("color", "var(--lumo-secondary-text-color)");
-
         add(titulo, subtitulo);
 
-        add(seccion("Reservas"), grilla(
-                tarjeta(VaadinIcon.PLUS_CIRCLE, "Hacer reserva",
-                        "Cargar una reserva de vuelo y/o hotel para un turista.",
-                        "reservas/nueva", true),
-                tarjeta(VaadinIcon.CLOSE_CIRCLE, "Cancelar reserva",
-                        "Dar de baja una reserva existente.",
-                        "reservas/cancelar", false),
-                tarjeta(VaadinIcon.LIST, "Consultar reservas",
-                        "Ver y buscar las reservas cargadas.",
-                        "reservas", false)));
+        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN, DUENIO)) {
+            List<Div> reservas = new ArrayList<>();
+            if (SesionUsuario.tieneRol(VENDEDOR)) {
+                reservas.add(tarjeta(VaadinIcon.PLUS_CIRCLE, "Hacer reserva",
+                        "Cargar una reserva de paquete para un turista.", NuevaReservaView.class, true));
+            }
+            reservas.add(tarjeta(VaadinIcon.LIST, "Consultar reservas",
+                    SesionUsuario.tieneRol(DUENIO) ? "Ver las reservas cargadas."
+                            : "Ver y cancelar las reservas cargadas.",
+                    ReservaGridView.class, false));
+            add(seccion("Reservas"), grilla(reservas));
+        }
 
-        add(seccion("Catálogo"), grilla(
-                tarjeta(VaadinIcon.USERS, "Turistas",
-                        "Registrar y consultar turistas.", "turistas", false),
-                tarjeta(VaadinIcon.AIRPLANE, "Vuelos",
-                        "Vuelos disponibles y plazas.", "vuelos", false),
-                tarjeta(VaadinIcon.BUILDING, "Hoteles",
-                        "Hoteles disponibles y plazas.", "hoteles", false)));
+        List<Div> catalogo = new ArrayList<>();
+        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
+            catalogo.add(tarjeta(VaadinIcon.USERS, "Turistas",
+                    "Registrar y consultar turistas.", TuristaGridView.class, false));
+        }
+        catalogo.add(tarjeta(VaadinIcon.AIRPLANE, "Vuelos",
+                "Vuelos disponibles y plazas.", VueloGridView.class, false));
+        catalogo.add(tarjeta(VaadinIcon.BUILDING, "Hoteles",
+                "Hoteles disponibles y plazas.", HotelGridView.class, false));
+        add(seccion("Catálogo"), grilla(catalogo));
 
-        if (SesionUsuario.esAdmin()) {
-            add(seccion("Administración"), grilla(
+        if (SesionUsuario.tieneRol(ADMIN, DUENIO)) {
+            add(seccion("Administración"), grilla(List.of(
                     tarjeta(VaadinIcon.USER_CARD, "Usuarios",
-                            "Alta y gestión de usuarios del sistema.", "usuarios", false),
+                            "Usuarios del sistema.", UsuarioGridView.class, false),
                     tarjeta(VaadinIcon.OFFICE, "Sucursales",
-                            "Alta y gestión de sucursales.", "sucursales", false)));
+                            "Sucursales de la cadena.", SucursalGridView.class, false))));
         }
     }
 
@@ -68,8 +79,8 @@ public class HomeView extends ProtectedView {
         return h;
     }
 
-    private Div grilla(Div... tarjetas) {
-        Div grilla = new Div(tarjetas);
+    private Div grilla(List<Div> tarjetas) {
+        Div grilla = new Div(tarjetas.toArray(Div[]::new));
         grilla.getStyle()
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(auto-fill, minmax(240px, 1fr))")
@@ -79,7 +90,7 @@ public class HomeView extends ProtectedView {
     }
 
     private Div tarjeta(VaadinIcon icono, String titulo, String descripcion,
-                        String ruta, boolean destacada) {
+                        Class<? extends Component> destino, boolean destacada) {
         Icon icon = icono.create();
         icon.setSize("var(--lumo-icon-size-l)");
         icon.setColor(destacada ? "var(--lumo-primary-color)" : "var(--lumo-contrast-60pct)");
@@ -102,7 +113,7 @@ public class HomeView extends ProtectedView {
                         ? "2px solid var(--lumo-primary-color)"
                         : "1px solid var(--lumo-contrast-10pct)")
                 .set("cursor", "pointer");
-        card.addClickListener(e -> UI.getCurrent().navigate(ruta));
+        card.addClickListener(e -> UI.getCurrent().navigate(destino));
         return card;
     }
 }

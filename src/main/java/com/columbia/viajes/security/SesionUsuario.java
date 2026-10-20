@@ -1,65 +1,37 @@
 package com.columbia.viajes.security;
 
 import com.columbia.viajes.security.enums.RolEnum;
-import com.columbia.viajes.dto.response.LoginResponse;
-import com.vaadin.flow.server.VaadinSession;
+import java.util.Arrays;
+import java.util.Optional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Acceso de solo lectura al usuario autenticado en Spring Security.
+ * El inicio y cierre de sesión los maneja Spring Security (ver SecurityConfig).
+ */
 public final class SesionUsuario {
-
-    private static final String USUARIO = "usuario";
 
     private SesionUsuario() {}
 
-    public static void iniciar(LoginResponse usuario) {
-        VaadinSession.getCurrent().setAttribute(USUARIO, usuario);
+    public static Optional<UsuarioAutenticado> getUsuario() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UsuarioAutenticado usuario) {
+            return Optional.of(usuario);
+        }
+        return Optional.empty();
     }
 
-    public static LoginResponse getUsuario() {
-        VaadinSession session = VaadinSession.getCurrent();
-        return session == null ? null : (LoginResponse) session.getAttribute(USUARIO);
-    }
-    
     public static String getToken() {
-        LoginResponse usuario = getUsuario();
-        return (usuario != null) ? usuario.token() : null;
+        return getUsuario().map(UsuarioAutenticado::token).orElse(null);
     }
 
-    public static boolean estaLogueado() {
-        return getUsuario() != null;
-    }
-
-    public static void cerrarSesion() {
-        VaadinSession session = VaadinSession.getCurrent();
-        if (session != null) {
-            session.setAttribute(USUARIO, null);
-        }
-    }
-    
     public static RolEnum getRol() {
-        LoginResponse usuario = getUsuario();
-        if (usuario == null || usuario.rolNombre() == null) {
-            return null;
-        }
-        return RolEnum.desdeDb(usuario.rolNombre());
-    }
-    
-    public static boolean esAdmin() {
-        LoginResponse usuario = getUsuario();
-        return usuario != null && "Administrador".equals(usuario.rolNombre());
+        return getUsuario().map(UsuarioAutenticado::rol).orElse(null);
     }
 
-    public static boolean esVendedor() {
-        LoginResponse usuario = getUsuario();
-        return usuario != null && "Vendedor".equals(usuario.rolNombre());    
-    }
-
-    public static boolean esDuenio() {
-        LoginResponse usuario = getUsuario();
-        return usuario != null && "Dueño".equals(usuario.rolNombre());
-    }
-
-    public static boolean esCliente() {
-        LoginResponse usuario = getUsuario();
-        return usuario != null && "Cliente".equals(usuario.rolNombre());
+    public static boolean tieneRol(RolEnum... roles) {
+        RolEnum rol = getRol();
+        return rol != null && Arrays.asList(roles).contains(rol);
     }
 }

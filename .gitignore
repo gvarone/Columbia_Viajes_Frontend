@@ -34,11 +34,10 @@ build/
 node_modules/
 pnpm-lock.yaml
 .pnpm-store/
-frontend/generated/
+src/main/frontend/generated/
 vite.generated.ts
 vite.config.ts.timestamp-*
 
 # --- Sistema operativo ---
 .DS_Store
 Thumbs.db
-.vscode/
