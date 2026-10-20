@@ -26,18 +26,24 @@ Navegador  →  Front (Vaadin, :8081)  →  API REST Backend (Spring Boot, :8080
 
 ```
 src/main/java/com/columbia/viajes/
-├── Application.java        Clase principal
-├── client/                 Clientes HTTP hacia el backend
-│   └── UsuarioClient.java
-├── dto/                    DTOs propios del front (copia de los campos del JSON del backend)
-│   ├── UsuarioResponse.java
-│   ├── LoginRequest.java       (aún sin usar)
-│   └── LoginResponse.java      (aún sin usar)
-└── views/                  Pantallas Vaadin
-    └── SesionUsuario.java
-└── security/               Autenticación
-    └── UsuariosView.java
-    └── LoginView.java
+├── Application.java                  Clase principal
+├── client/                           Clientes HTTP hacia el backend (RestClient / OpenFeign)
+│   ├── UsuarioClient.java
+│   └── SucursalClient.java
+├── dto/                              DTOs y Records (Request / Response mapeados del JSON backend)
+│   ├── LoginRequest.java
+│   ├── LoginResponse.java
+│   └── SucursalResponse.java
+├── security/                         Seguridad, control de sesión y roles
+│   └── SesionUsuario.java
+└── views/                            Pantallas y vistas Vaadin
+├── base/
+│   ├── MainLayout.java           Esqueleto general (Header, Drawer, Menú lateral)
+│   └── ProtectedView.java        Clase base para vistas que exigen autenticación
+├── HomeView.java
+├── LoginView.java
+├── SucursalGridView.java
+└── UsuarioGridView.java
 ```
 
 ## Configuración
@@ -70,21 +76,21 @@ mvn spring-boot:run
 
 La primera ejecución tarda varios minutos porque Vaadin descarga las dependencias del frontend.
 
-3. Abrir `http://localhost:8081/usuarios`.
+3. Abrir `http://localhost:8081/`.
 
 ## Funcionalidad actual
 
-- **`/usuarios`**: tabla (`Grid`) con el listado de usuarios obtenido desde `GET /api/usuarios` del backend. Si el backend no responde, muestra una notificación de error.
+- **`Autenticación`**: Pantalla de login (/login) con soporte para envío mediante la tecla Enter y validación de credenciales contra el backend.
 
-## Problemas conocidos / notas
+- **`Gestión de Sesión`**: Almacenamiento seguro del token y datos del usuario en la sesión de Vaadin, con redirección automática si el token expira.
 
-- Si la tabla aparece con columnas vacías, los nombres de los campos de `UsuarioResponse` no coinciden con los del JSON del backend.
+- **`Navegación y Layout`**: Estructura responsive con menú lateral (SideNav) adaptativo según el rol del usuario ("Administrador", "Vendedor", "Dueño", "Cliente").
+
+- **`Grillas`**: Visualización de catálogos y entidades (Usuarios, Sucursales) mediante componentes de datos de Vaadin conectados a sus respectivos clientes HTTP.
 
 ## Pendiente
 
-- [ ] Definir con el backend el esquema de autenticación (token, sesión o Basic Auth).
-- [ ] Pantalla de login y manejo de sesión.
-- [ ] Control de acceso por rol (cliente, vendedor, administrador, dueño).
-- [ ] ABM de sucursales, hoteles, vuelos y turistas.
-- [ ] Carga y consulta de reservas.
+- [ ] Completar pantallas de gestión para hoteles, vuelos y turistas.
+- [ ] Carga, cancelación y consulta de reservas de viajes.
+- [ ] Mejoras estéticas y de notificaciones en formularios de alta/modificación.
 
