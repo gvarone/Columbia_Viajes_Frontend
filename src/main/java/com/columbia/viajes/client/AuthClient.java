@@ -1,7 +1,9 @@
 package com.columbia.viajes.client;
 
 import com.columbia.viajes.dto.request.LoginRequest;
+import com.columbia.viajes.dto.request.RegistroClienteRequest;
 import com.columbia.viajes.dto.response.LoginResponse;
+import com.columbia.viajes.dto.response.UsuarioResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -20,6 +22,18 @@ public class AuthClient {
                 .body(request)
                 .retrieve()
                 .body(LoginResponse.class);
+    }
+
+    /**
+     * Crea una cuenta Cliente junto con su turista (el backend asigna el rol).
+     * Es público: sirve tanto para el registro propio como para el alta en sucursal.
+     */
+    public UsuarioResponse registrar(RegistroClienteRequest request) {
+        return restClient.post()
+                .uri("/auth/registro")
+                .body(request)
+                .retrieve()
+                .body(UsuarioResponse.class);
     }
 
     /**

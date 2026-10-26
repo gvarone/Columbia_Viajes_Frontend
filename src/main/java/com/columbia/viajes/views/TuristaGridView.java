@@ -37,8 +37,6 @@ public class TuristaGridView extends VerticalLayout implements BeforeEnterObserv
         grid.addColumn(TuristaResponse::direccion).setHeader("Dirección");
         grid.addColumn(TuristaResponse::email).setHeader("Email");
         grid.addColumn(TuristaResponse::telefono).setHeader("Teléfono");
-        grid.addColumn(t -> t.usuarioId() != null ? "Sí" : "No").setHeader("Tiene cuenta")
-                .setAutoWidth(true).setFlexGrow(0);
 
         Button nuevo = new Button("Nuevo turista", VaadinIcon.PLUS.create(),
                 e -> new TuristaDialog(client, creado -> cargar()).open());

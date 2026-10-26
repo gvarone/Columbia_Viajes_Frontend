@@ -1,11 +1,10 @@
 package com.columbia.viajes.dto.request;
 
-/** idUsuario es opcional: un turista puede no tener cuenta en el sistema. */
+/** Datos personales del turista. Su cuenta Cliente viaja aparte (ver RegistroClienteRequest). */
 public record TuristaRequest(
         String nombre,
         String apellidos,
         String direccion,
         String email,
-        String telefono,
-        Integer idUsuario
+        String telefono
 ) {}

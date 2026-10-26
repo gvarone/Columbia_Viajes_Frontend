@@ -1,14 +1,17 @@
 package com.columbia.viajes.views;
 
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -43,7 +46,11 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         login.setForgotPasswordButtonVisible(false);
         login.setI18n(i18n);
 
-        add(titulo, login);
+        HorizontalLayout registro = new HorizontalLayout(
+                new Span("¿No tenés cuenta?"), new RouterLink("Crear cuenta", RegistroView.class));
+        registro.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        add(titulo, login, registro);
     }
 
     @Override
@@ -73,11 +80,12 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     private static LoginI18n crearI18n() {
         LoginI18n i18n = LoginI18n.createDefault();
         i18n.getForm().setTitle("Iniciar sesión");
-        i18n.getForm().setUsername("Usuario");
+        // Los clientes también pueden ingresar con su email
+        i18n.getForm().setUsername("Usuario o email");
         i18n.getForm().setPassword("Contraseña");
         i18n.getForm().setSubmit("Ingresar");
         i18n.getErrorMessage().setTitle("Datos incorrectos");
-        i18n.getErrorMessage().setMessage("Usuario o contraseña incorrectos.");
+        i18n.getErrorMessage().setMessage("Usuario, email o contraseña incorrectos.");
         return i18n;
     }
 }
