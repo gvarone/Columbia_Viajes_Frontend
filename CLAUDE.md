@@ -34,7 +34,8 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
   - `SesionUsuario` — helpers estáticos de solo lectura sobre el `SecurityContext` (`getUsuario`, `getToken`, `getRol`, `tieneRol(...)`).
   - `Roles` — constantes para `@RolesAllowed` (`ADMIN`, `VENDEDOR`, `CLIENTE`, `DUENIO`), iguales a `RolEnum.name()`.
 - `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios).
-- `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView`, `TuristaDialog`.
+- `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel) y `PaqueteDetalleDialog` (hotel y vuelos).
+- Imágenes de paquetes: las pide el servidor Vaadin (`PaqueteClient.imagen`) y se sirven con `DownloadHandler.fromInputStream`; el navegador nunca llama directo al backend.
 - `views/TuristaForm` — campos y validaciones de turista + cuenta Cliente, compartido por `TuristaDialog` y `RegistroView` (no duplicar).
 
 ### Matriz de acceso (anotaciones en cada vista)
@@ -42,8 +43,9 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 |---|---|---|---|---|
 | Login, Registro | anónimo | | | |
 | Inicio, Vuelos, Hoteles | x | x | x | x |
+| Paquetes (catálogo) | x | x (solo su sucursal, +Reservar) | x | x |
 | Hacer reserva | | x | | |
-| Reservas | | x (+cancelar, solo su sucursal) | x (+cancelar) | x (solo ver) |
+| Reservas | x ("Mis reservas", solo ver) | x (+editar/cancelar, solo su sucursal) | x (+editar/cancelar) | x (solo ver) |
 | Turistas (+alta) | | x | x | |
 | Usuarios, Sucursales | | | x | x (solo ver) |
 
@@ -72,7 +74,9 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 ## Decisiones tomadas
 - **Todo turista tiene cuenta Cliente** (modelo de `main` del backend: comparten ID con `@MapsId`). Se descartó la rama `gvarone` (turista con cuenta opcional), ya borrada. Alta en sucursal: `TuristaClient.crear` = `AuthClient.registrar` + `GET /turistas/{id}`. Registro público (`RegistroView`): solo `AuthClient.registrar` (sin token no puede leer `/turistas`).
 - La BD local debe tener la estructura del `schema.sql` de `main` del backend (`turistas.id` = FK a `usuarios.id` con CASCADE, sin `id_usuario`). Para rehacerla: `mysql -h127.0.0.1 -P3307 -uroot -p columbia_viajes < schema.sql` (borra los datos actuales).
-- **Solo el Vendedor carga reservas** (el backend toma el vendedor del token). Admin y Dueño no ven "Hacer reserva".
+- **Solo el Vendedor carga reservas** (el backend toma el vendedor del token). Admin y Dueño no ven "Hacer reserva". El Cliente solo consulta (no se auto-reserva).
+- Editar una reserva cambia solo clase y régimen; para cambiar turista o paquete se cancela y se crea otra.
+- En el catálogo el Vendedor ve solo los paquetes de su sucursal (sucursal tomada de `GET /usuarios/me`).
 - **Ranking de vendedores del Dueño**: lo calcula el backend (`GET /paquetes-reservas/ranking-vendedores`); no se calcula en el front.
 - Seguridad con Spring Security + Vaadin (no mecanismo casero).
 
@@ -81,9 +85,8 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 2. `Dockerfile` usa `--spring.profiles.active=prod` pero no existe `application-prod.properties`; `backend.url` apunta a localhost.
 3. `pom.xml` incluye repositorios `vaadin-prereleases` (innecesarios con versión estable).
 4. Estilos con variables `--lumo-*` pero el tema cargado es Aura (verificar que se vean bien).
-5. `NuevaReservaView` obtiene la sucursal del vendedor buscando su nombre en `/usuarios/vendedores`; se puede reemplazar por `GET /usuarios/me`.
-6. `TuristaGridView` no incluye al Dueño, aunque el backend le permite ver turistas.
-7. `ReservaGridView` no deja cancelar al Dueño (el backend sí lo permite): confirmar si es a propósito.
+5. `TuristaGridView` no incluye al Dueño, aunque el backend le permite ver turistas.
+6. `ReservaGridView` no deja editar ni cancelar al Dueño (el backend sí lo permite): es a propósito, el Dueño solo consulta.
 
 ## Pendientes del backend (los maneja un compañero en `main` del backend; **no modificar sin consultar**)
 - A conversar: endpoint propio para que el Vendedor cree clientes (hoy se usa el registro público, que funciona para cualquier rol).
@@ -96,8 +99,8 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 
 ## Pendientes según la consigna
 **Funcionalidad por rol**:
-- **Cliente**: registro y consulta de vuelos/hoteles hechos; faltan paquetes, "mis reservas" y "mi perfil" (el backend ya los tiene).
-- **Vendedor**: alta y cancelación de reservas y alta de turistas (con cuenta) hechas; faltan edición de reserva y edición de turistas.
+- **Cliente**: registro, consulta de vuelos/hoteles/paquetes y "Mis reservas" hechos; falta "mi perfil" (el backend ya tiene `GET /usuarios/me`).
+- **Vendedor**: alta, edición (clase/régimen) y cancelación de reservas, catálogo con "Reservar" y alta de turistas hechos; falta edición de turistas.
 - **Administrador**: faltan los ABM (alta/edición/baja) de usuarios, sucursales, hoteles, vuelos, paquetes y ciudades (hoy solo lectura).
 - **Dueño**: falta la vista del ranking de vendedores (el endpoint ya existe).
 - Cambio de contraseña (el backend ya tiene `POST /auth/cambiar-contrasenia`).

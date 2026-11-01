@@ -4,6 +4,7 @@ import com.columbia.viajes.security.SesionUsuario;
 import com.columbia.viajes.views.HomeView;
 import com.columbia.viajes.views.HotelGridView;
 import com.columbia.viajes.views.NuevaReservaView;
+import com.columbia.viajes.views.PaqueteCatalogoView;
 import com.columbia.viajes.views.ReservaGridView;
 import com.columbia.viajes.views.SucursalGridView;
 import com.columbia.viajes.views.TuristaGridView;
@@ -24,6 +25,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.PermitAll;
 
 import static com.columbia.viajes.security.enums.RolEnum.ADMIN;
+import static com.columbia.viajes.security.enums.RolEnum.CLIENTE;
 import static com.columbia.viajes.security.enums.RolEnum.DUENIO;
 import static com.columbia.viajes.security.enums.RolEnum.VENDEDOR;
 
@@ -73,18 +75,18 @@ public class MainLayout extends AppLayout {
         SideNav nav = new SideNav();
         nav.addItem(new SideNavItem("Inicio", HomeView.class, VaadinIcon.HOME.create()));
 
-        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN, DUENIO)) {
-            SideNavItem reservas = new SideNavItem("Reservas");
-            reservas.setPrefixComponent(VaadinIcon.CALENDAR_CLOCK.create());
-            if (SesionUsuario.tieneRol(VENDEDOR)) {
-                reservas.addItem(new SideNavItem("Hacer reserva", NuevaReservaView.class));
-            }
-            reservas.addItem(new SideNavItem("Consultar reservas", ReservaGridView.class));
-            nav.addItem(reservas);
+        SideNavItem reservas = new SideNavItem("Reservas");
+        reservas.setPrefixComponent(VaadinIcon.CALENDAR_CLOCK.create());
+        if (SesionUsuario.tieneRol(VENDEDOR)) {
+            reservas.addItem(new SideNavItem("Hacer reserva", NuevaReservaView.class));
         }
+        reservas.addItem(new SideNavItem(
+                SesionUsuario.tieneRol(CLIENTE) ? "Mis reservas" : "Consultar reservas", ReservaGridView.class));
+        nav.addItem(reservas);
 
         SideNavItem catalogo = new SideNavItem("Catálogo");
         catalogo.setPrefixComponent(VaadinIcon.AIRPLANE.create());
+        catalogo.addItem(new SideNavItem("Paquetes", PaqueteCatalogoView.class));
         if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
             catalogo.addItem(new SideNavItem("Turistas", TuristaGridView.class));
         }

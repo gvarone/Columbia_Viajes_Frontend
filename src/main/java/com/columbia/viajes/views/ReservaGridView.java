@@ -34,15 +34,17 @@ import java.util.stream.Collectors;
 import org.springframework.web.client.RestClientException;
 
 import static com.columbia.viajes.security.enums.RolEnum.ADMIN;
+import static com.columbia.viajes.security.enums.RolEnum.CLIENTE;
 import static com.columbia.viajes.security.enums.RolEnum.VENDEDOR;
 
 /**
- * Listado de reservas. El backend ya filtra: el Vendedor solo ve las de su sucursal.
- * Vendedor y Admin pueden cancelar; el Dueño solo consulta.
+ * Listado de reservas. El backend ya filtra: el Cliente ve solo las suyas y el
+ * Vendedor solo las de su sucursal. Vendedor y Admin pueden editar y cancelar;
+ * el Dueño y el Cliente solo consultan.
  */
 @Route(value = "reservas", layout = MainLayout.class)
 @PageTitle("Reservas | Columbia Viajes")
-@RolesAllowed({Roles.VENDEDOR, Roles.ADMIN, Roles.DUENIO})
+@RolesAllowed({Roles.CLIENTE, Roles.VENDEDOR, Roles.ADMIN, Roles.DUENIO})
 public class ReservaGridView extends VerticalLayout implements BeforeEnterObserver {
 
     private final ReservaClient reservaClient;
@@ -55,6 +57,9 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
     private Map<Integer, PaqueteResponse> paquetes = Map.of();
     private Map<Integer, UsuarioResponse> vendedores = Map.of();
 
+    // El Cliente no tiene permiso para leer /turistas ni /usuarios/vendedores
+    private final boolean esCliente = SesionUsuario.tieneRol(CLIENTE);
+
     public ReservaGridView(ReservaClient reservaClient, TuristaClient turistaClient,
                            PaqueteClient paqueteClient, UsuarioClient usuarioClient) {
         this.reservaClient = reservaClient;
@@ -64,24 +69,30 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
 
         grid.addColumn(ReservaResponse::id).setHeader("N°").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(r -> Formatos.fechaHora(r.fechaReserva())).setHeader("Fecha");
-        grid.addColumn(this::turista).setHeader("Turista");
+        if (!esCliente) {
+            grid.addColumn(this::turista).setHeader("Turista");
+        }
         grid.addColumn(this::paquete).setHeader("Paquete");
+        grid.addColumn(this::estadia).setHeader("Estadía");
         grid.addColumn(r -> r.claseVuelo() != null ? r.claseVuelo().getEtiqueta() : "").setHeader("Clase");
         grid.addColumn(r -> r.regimenHospedaje() != null ? r.regimenHospedaje().getEtiqueta() : "")
                 .setHeader("Régimen");
         grid.addColumn(r -> Formatos.precio(r.precioReserva())).setHeader("Precio");
-        grid.addColumn(this::vendedor).setHeader("Vendedor");
+        if (!esCliente) {
+            grid.addColumn(this::vendedor).setHeader("Vendedor");
+        }
 
-        boolean puedeCancelar = SesionUsuario.tieneRol(VENDEDOR, ADMIN);
-        if (puedeCancelar) {
+        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
             grid.addComponentColumn(r -> {
+                Button editar = new Button("Editar", e -> editar(r));
+                editar.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
                 Button cancelar = new Button("Cancelar", e -> confirmarCancelacion(r));
                 cancelar.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
-                return cancelar;
+                return new HorizontalLayout(editar, cancelar);
             }).setAutoWidth(true).setFlexGrow(0);
         }
 
-        HorizontalLayout encabezado = new HorizontalLayout(new H2("Reservas"));
+        HorizontalLayout encabezado = new HorizontalLayout(new H2(esCliente ? "Mis reservas" : "Reservas"));
         if (SesionUsuario.tieneRol(VENDEDOR)) {
             Button nueva = new Button("Nueva reserva", VaadinIcon.PLUS.create(),
                     e -> UI.getCurrent().navigate(NuevaReservaView.class));
@@ -100,12 +111,14 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         try {
-            turistas = turistaClient.listar().stream()
-                    .collect(Collectors.toMap(TuristaResponse::id, Function.identity()));
             paquetes = paqueteClient.listar().stream()
                     .collect(Collectors.toMap(PaqueteResponse::id, Function.identity()));
-            vendedores = usuarioClient.listarVendedores().stream()
-                    .collect(Collectors.toMap(UsuarioResponse::id, Function.identity()));
+            if (!esCliente) {
+                turistas = turistaClient.listar().stream()
+                        .collect(Collectors.toMap(TuristaResponse::id, Function.identity()));
+                vendedores = usuarioClient.listarVendedores().stream()
+                        .collect(Collectors.toMap(UsuarioResponse::id, Function.identity()));
+            }
         } catch (RestClientException e) {
             // Sin estos datos la grilla muestra IDs en vez de nombres
             Notificaciones.error("No se pudieron cargar todos los datos", e);
@@ -119,6 +132,11 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
         } catch (RestClientException e) {
             Notificaciones.error("No se pudieron cargar las reservas", e);
         }
+    }
+
+    private void editar(ReservaResponse reserva) {
+        new EditarReservaDialog(reservaClient, reserva, turista(reserva), paquete(reserva),
+                actualizada -> cargarReservas()).open();
     }
 
     private void confirmarCancelacion(ReservaResponse reserva) {
@@ -151,6 +169,11 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
     private String paquete(ReservaResponse r) {
         PaqueteResponse p = paquetes.get(r.paqueteId());
         return p != null ? p.nombre() : "#" + r.paqueteId();
+    }
+
+    private String estadia(ReservaResponse r) {
+        PaqueteResponse p = paquetes.get(r.paqueteId());
+        return p != null ? Formatos.fecha(p.fechaLlegadaHotel()) + " al " + Formatos.fecha(p.fechaPartidaHotel()) : "";
     }
 
     private String vendedor(ReservaResponse r) {

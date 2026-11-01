@@ -21,4 +21,11 @@ public class VueloClient {
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<VueloResponse>>() {});
     }
+
+    public VueloResponse obtener(Integer id) {
+        return restClient.get()
+                .uri("/vuelos/{id}", id)
+                .retrieve()
+                .body(VueloResponse.class);
+    }
 }

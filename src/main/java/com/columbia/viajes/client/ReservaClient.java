@@ -37,4 +37,12 @@ public class ReservaClient {
                 .retrieve()
                 .toBodilessEntity();
     }
+
+    public ReservaResponse actualizar(Integer id, ReservaRequest request) {
+        return restClient.put()
+                .uri("/paquetes-reservas/{id}", id)
+                .body(request)
+                .retrieve()
+                .body(ReservaResponse.class);
+    }
 }

@@ -21,4 +21,11 @@ public class HotelClient {
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<HotelResponse>>() {});
     }
+
+    public HotelResponse obtener(Integer id) {
+        return restClient.get()
+                .uri("/hoteles/{id}", id)
+                .retrieve()
+                .body(HotelResponse.class);
+    }
 }

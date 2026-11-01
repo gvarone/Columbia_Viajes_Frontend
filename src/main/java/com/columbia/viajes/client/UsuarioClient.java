@@ -1,5 +1,6 @@
 package com.columbia.viajes.client;
 
+import com.columbia.viajes.dto.response.MiPerfilResponse;
 import com.columbia.viajes.dto.response.UsuarioResponse;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,5 +28,13 @@ public class UsuarioClient {
                 .uri("/usuarios/vendedores")
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<UsuarioResponse>>() {});
+    }
+
+    /** Datos del usuario logueado (incluye su sucursal si es Vendedor). */
+    public MiPerfilResponse miPerfil() {
+        return restClient.get()
+                .uri("/usuarios/me")
+                .retrieve()
+                .body(MiPerfilResponse.class);
     }
 }

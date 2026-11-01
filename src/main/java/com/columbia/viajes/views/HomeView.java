@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.columbia.viajes.security.enums.RolEnum.ADMIN;
+import static com.columbia.viajes.security.enums.RolEnum.CLIENTE;
 import static com.columbia.viajes.security.enums.RolEnum.DUENIO;
 import static com.columbia.viajes.security.enums.RolEnum.VENDEDOR;
 
@@ -40,20 +41,27 @@ public class HomeView extends VerticalLayout {
         subtitulo.getStyle().set("color", "var(--lumo-secondary-text-color)");
         add(titulo, subtitulo);
 
-        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN, DUENIO)) {
-            List<Div> reservas = new ArrayList<>();
-            if (SesionUsuario.tieneRol(VENDEDOR)) {
-                reservas.add(tarjeta(VaadinIcon.PLUS_CIRCLE, "Hacer reserva",
-                        "Cargar una reserva de paquete para un turista.", NuevaReservaView.class, true));
-            }
+        List<Div> reservas = new ArrayList<>();
+        if (SesionUsuario.tieneRol(VENDEDOR)) {
+            reservas.add(tarjeta(VaadinIcon.PLUS_CIRCLE, "Hacer reserva",
+                    "Cargar una reserva de paquete para un turista.", NuevaReservaView.class, true));
+        }
+        if (SesionUsuario.tieneRol(CLIENTE)) {
+            reservas.add(tarjeta(VaadinIcon.LIST, "Mis reservas",
+                    "Ver los paquetes que reservaste.", ReservaGridView.class, false));
+        } else {
             reservas.add(tarjeta(VaadinIcon.LIST, "Consultar reservas",
                     SesionUsuario.tieneRol(DUENIO) ? "Ver las reservas cargadas."
-                            : "Ver y cancelar las reservas cargadas.",
+                            : "Ver, editar y cancelar las reservas cargadas.",
                     ReservaGridView.class, false));
-            add(seccion("Reservas"), grilla(reservas));
         }
+        add(seccion("Reservas"), grilla(reservas));
 
         List<Div> catalogo = new ArrayList<>();
+        catalogo.add(tarjeta(VaadinIcon.SUITCASE, "Paquetes",
+                SesionUsuario.tieneRol(VENDEDOR) ? "Paquetes de tu sucursal para reservar."
+                        : "Paquetes de viaje disponibles.",
+                PaqueteCatalogoView.class, !SesionUsuario.tieneRol(VENDEDOR)));
         if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
             catalogo.add(tarjeta(VaadinIcon.USERS, "Turistas",
                     "Registrar y consultar turistas.", TuristaGridView.class, false));

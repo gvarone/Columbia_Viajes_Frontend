@@ -9,9 +9,7 @@ import com.columbia.viajes.dto.enums.RegimenHospedaje;
 import com.columbia.viajes.dto.request.ReservaRequest;
 import com.columbia.viajes.dto.response.PaqueteResponse;
 import com.columbia.viajes.dto.response.TuristaResponse;
-import com.columbia.viajes.dto.response.UsuarioResponse;
 import com.columbia.viajes.security.Roles;
-import com.columbia.viajes.security.SesionUsuario;
 import com.columbia.viajes.views.base.Formatos;
 import com.columbia.viajes.views.base.MainLayout;
 import com.columbia.viajes.views.base.Notificaciones;
@@ -40,6 +38,9 @@ import org.springframework.web.client.RestClientException;
 @PageTitle("Nueva reserva | Columbia Viajes")
 @RolesAllowed(Roles.VENDEDOR)
 public class NuevaReservaView extends VerticalLayout implements BeforeEnterObserver {
+
+    /** Query param para llegar con un paquete preseleccionado (desde el catálogo). */
+    public static final String PARAMETRO_PAQUETE = "paquete";
 
     private final ReservaClient reservaClient;
     private final TuristaClient turistaClient;
@@ -97,10 +98,18 @@ public class NuevaReservaView extends VerticalLayout implements BeforeEnterObser
     public void beforeEnter(BeforeEnterEvent event) {
         cargarTuristas();
         try {
-            paquete.setItems(paquetesDeMiSucursal(paqueteClient.listar()));
+            List<PaqueteResponse> paquetes = paquetesDeMiSucursal(paqueteClient.listar());
+            paquete.setItems(paquetes);
+            preseleccionarPaquete(event, paquetes);
         } catch (RestClientException e) {
             Notificaciones.error("No se pudieron cargar los paquetes", e);
         }
+    }
+
+    private void preseleccionarPaquete(BeforeEnterEvent event, List<PaqueteResponse> paquetes) {
+        event.getLocation().getQueryParameters().getSingleParameter(PARAMETRO_PAQUETE)
+                .flatMap(id -> paquetes.stream().filter(p -> String.valueOf(p.id()).equals(id)).findFirst())
+                .ifPresent(paquete::setValue);
     }
 
     private void cargarTuristas() {
@@ -111,26 +120,14 @@ public class NuevaReservaView extends VerticalLayout implements BeforeEnterObser
         }
     }
 
-    /**
-     * El backend solo acepta paquetes de la sucursal del vendedor. Como el login no
-     * devuelve la sucursal, se busca al vendedor logueado en /usuarios/vendedores
-     * (los nombres de usuario son únicos). Si no se encuentra, se muestran todos.
-     */
+    /** El backend solo acepta paquetes de la sucursal del vendedor logueado. */
     private List<PaqueteResponse> paquetesDeMiSucursal(List<PaqueteResponse> todos) {
-        String miNombre = SesionUsuario.getUsuario().map(u -> u.nombre()).orElse(null);
-        try {
-            Integer miSucursal = usuarioClient.listarVendedores().stream()
-                    .filter(v -> v.nombre().equals(miNombre))
-                    .map(UsuarioResponse::sucursalId)
-                    .findFirst()
-                    .orElse(null);
-            if (miSucursal == null) {
-                return todos;
-            }
-            return todos.stream().filter(p -> miSucursal.equals(p.sucursalId())).toList();
-        } catch (RestClientException e) {
-            return todos;
+        Integer miSucursal = usuarioClient.miPerfil().usuario().sucursalId();
+        if (miSucursal == null) {
+            Notificaciones.error("Tu usuario no tiene una sucursal asignada.");
+            return List.of();
         }
+        return todos.stream().filter(p -> miSucursal.equals(p.sucursalId())).toList();
     }
 
     private void guardar() {
