@@ -40,6 +40,14 @@ public abstract class AbmDialog<T extends Identificable, R> extends Dialog {
     /** Arma el request con los valores cargados. Se llama solo si validar() no dio errores. */
     protected abstract R armarRequest();
 
+    /**
+     * Paso opcional después de un alta o edición exitosa, con el registro que devolvió
+     * el backend (ej. subir la imagen de un paquete). Por defecto no hace nada.
+     * Si falla, tiene que avisar él mismo: el registro ya quedó guardado.
+     */
+    protected void despuesDeGuardar(T guardado) {
+    }
+
     protected boolean esEdicion() {
         return item != null;
     }
@@ -56,13 +64,15 @@ public abstract class AbmDialog<T extends Identificable, R> extends Dialog {
             return;
         }
         try {
+            T guardado;
             if (esEdicion()) {
-                client.actualizar(item.id(), armarRequest());
+                guardado = client.actualizar(item.id(), armarRequest());
                 Notificaciones.exito("Cambios guardados.");
             } else {
-                client.crear(armarRequest());
+                guardado = client.crear(armarRequest());
                 Notificaciones.exito("Alta registrada.");
             }
+            despuesDeGuardar(guardado);
             alGuardar.run();
             close();
         } catch (RestClientException e) {

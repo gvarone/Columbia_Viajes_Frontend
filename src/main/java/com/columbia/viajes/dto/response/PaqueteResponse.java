@@ -16,4 +16,4 @@ public record PaqueteResponse (
     Integer vueloIdaId,
     Integer vueloVueltaId,
     Integer hotelId
-) {}
+) implements Identificable {}

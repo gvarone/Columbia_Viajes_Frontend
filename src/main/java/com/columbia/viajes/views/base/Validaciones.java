@@ -1,10 +1,14 @@
 package com.columbia.viajes.views.base;
 
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -55,6 +59,31 @@ public final class Validaciones {
         if (campo.isEmpty() || campo.isInvalid()) {
             campo.setInvalid(true);
             errores.add(campo.getLabel() + ": ingresá fecha y hora.");
+        }
+    }
+
+    /** Fecha obligatoria (@NotNull). El DatePicker marca inválido un texto mal escrito. */
+    public static void fecha(DatePicker campo, List<String> errores) {
+        if (campo.isEmpty() || campo.isInvalid()) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": ingresá una fecha.");
+        }
+    }
+
+    /** Monto obligatorio y no negativo (@NotNull + @DecimalMin("0.0")). */
+    public static void montoNoNegativo(BigDecimalField campo, List<String> errores) {
+        BigDecimal valor = campo.getValue();
+        if (valor == null || valor.signum() < 0) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": ingresá un monto mayor o igual a 0.");
+        }
+    }
+
+    /** Texto opcional con largo máximo (@Size(max) sin @NotBlank). */
+    public static void largoMaximo(TextArea campo, List<String> errores) {
+        if (campo.getValue().trim().length() > campo.getMaxLength()) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": hasta " + campo.getMaxLength() + " caracteres.");
         }
     }
 }
