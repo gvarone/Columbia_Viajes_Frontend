@@ -114,7 +114,8 @@ public class PaqueteDialog extends AbmDialog<PaqueteResponse, PaqueteRequest> {
         }));
         upload.setMaxFiles(1);
         upload.setMaxFileSize(TAMANIO_MAXIMO_IMAGEN);
-        upload.setAcceptedFileTypes("image/jpeg", "image/png", ".jpg", ".jpeg", ".png");
+        upload.setAcceptedMimeTypes("image/jpeg", "image/png");
+        upload.setAcceptedFileExtensions(".jpg", ".jpeg", ".png");
         upload.setUploadButton(new Button("Elegir imagen"));
         upload.setDropLabel(new Span(esEdicion() && getItem().imagen() != null
                 ? "Imagen (JPEG o PNG, hasta 5 MB). Si no elegís otra, queda la actual."

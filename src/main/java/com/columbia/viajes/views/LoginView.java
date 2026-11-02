@@ -78,14 +78,22 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private static LoginI18n crearI18n() {
-        LoginI18n i18n = LoginI18n.createDefault();
-        i18n.getForm().setTitle("Iniciar sesión");
+        LoginI18n.Form form = new LoginI18n.Form();
+        form.setTitle("Iniciar sesión");
         // Los clientes también pueden ingresar con su email
-        i18n.getForm().setUsername("Usuario o email");
-        i18n.getForm().setPassword("Contraseña");
-        i18n.getForm().setSubmit("Ingresar");
-        i18n.getErrorMessage().setTitle("Datos incorrectos");
-        i18n.getErrorMessage().setMessage("Usuario, email o contraseña incorrectos.");
+        form.setUsername("Usuario o email");
+        form.setPassword("Contraseña");
+        form.setSubmit("Ingresar");
+
+        LoginI18n.ErrorMessage error = new LoginI18n.ErrorMessage();
+        error.setTitle("Datos incorrectos");
+        error.setMessage("Usuario, email o contraseña incorrectos.");
+        error.setUsername("Ingresá tu usuario o email.");
+        error.setPassword("Ingresá tu contraseña.");
+
+        LoginI18n i18n = new LoginI18n();
+        i18n.setForm(form);
+        i18n.setErrorMessage(error);
         return i18n;
     }
 }
