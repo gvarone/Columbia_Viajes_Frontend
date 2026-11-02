@@ -1,1 +1,101 @@
-/* Add your styles here */
+/*
+ * Estilos propios. El tema es Aura: usar variables --vaadin-* / --aura-*
+ * (las --lumo-* son del tema Lumo y con Aura no están definidas).
+ */
+
+/* ---- Catálogo de paquetes ---- */
+
+.catalogo-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--vaadin-gap-l);
+    width: 100%;
+}
+
+/* Imagen completa (sin recortes) en un cuadro 16:9; el sobrante queda con fondo suave */
+.catalogo-imagen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: var(--vaadin-background-container);
+    color: var(--vaadin-text-color-secondary);
+}
+
+.catalogo-dato {
+    display: flex;
+    align-items: center;
+    gap: var(--vaadin-gap-xs);
+    color: var(--vaadin-text-color-secondary);
+    font-size: var(--aura-font-size-s);
+}
+
+.catalogo-precio {
+    display: flex;
+    align-items: baseline;
+    gap: var(--vaadin-gap-xs);
+    margin-top: var(--vaadin-gap-s);
+}
+
+.catalogo-precio-desde {
+    color: var(--vaadin-text-color-secondary);
+    font-size: var(--aura-font-size-s);
+}
+
+.catalogo-precio-monto {
+    font-size: var(--aura-font-size-l);
+    font-weight: 600;
+}
+
+/* ---- Generales ---- */
+
+.texto-secundario {
+    color: var(--vaadin-text-color-secondary);
+}
+
+.texto-chico {
+    font-size: var(--aura-font-size-s);
+}
+
+/* Nombre de la app en login y registro */
+.titulo-app {
+    color: var(--aura-accent-text-color);
+}
+
+/* ---- Encabezado (MainLayout) ---- */
+
+.app-encabezado {
+    padding-inline: var(--vaadin-padding-m);
+}
+
+.app-logo {
+    font-size: var(--aura-font-size-l);
+    margin: 0;
+}
+
+/* ---- Inicio ---- */
+
+.inicio-seccion {
+    margin: var(--vaadin-gap-l) 0 0 0;
+}
+
+.inicio-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--vaadin-gap-m);
+    width: 100%;
+}
+
+.inicio-tarjeta {
+    cursor: pointer;
+    color: var(--vaadin-text-color-secondary);
+}
+
+/* Acción principal del rol: borde e ícono con el color de acento */
+.inicio-tarjeta-destacada {
+    --vaadin-card-border-color: var(--aura-accent-color);
+    --vaadin-card-border-width: 2px;
+    color: var(--aura-accent-color);
+}

@@ -40,7 +40,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setJustifyContentMode(JustifyContentMode.CENTER);
 
         H1 titulo = new H1("Columbia Viajes");
-        titulo.getStyle().set("color", "var(--lumo-primary-color)");
+        titulo.addClassName("titulo-app");
 
         login.setAction("login");
         login.setForgotPasswordButtonVisible(false);

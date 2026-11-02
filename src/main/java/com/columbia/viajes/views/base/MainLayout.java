@@ -54,23 +54,22 @@ public class MainLayout extends AppLayout {
         DrawerToggle toggle = new DrawerToggle();
 
         H1 logo = new H1("Columbia Viajes");
-        logo.getStyle().set("font-size", "var(--lumo-font-size-l)").set("margin", "0");
+        logo.addClassName("app-logo");
 
         String datos = SesionUsuario.getUsuario()
                 .map(u -> u.nombre() + " · " + u.rol().getNombreEnDb())
                 .orElse("");
         Span datosUsuario = new Span(datos);
-        datosUsuario.getStyle().set("color", "var(--lumo-secondary-text-color)")
-                .set("font-size", "var(--lumo-font-size-s)");
+        datosUsuario.addClassNames("texto-secundario", "texto-chico");
 
         Button logout = new Button("Cerrar sesión", VaadinIcon.SIGN_OUT.create(), e -> authContext.logout());
-        logout.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        logout.addThemeVariants(ButtonVariant.TERTIARY);
 
         HorizontalLayout header = new HorizontalLayout(toggle, logo, datosUsuario, logout);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(logo);
         header.setWidthFull();
-        header.getStyle().set("padding", "0 var(--lumo-space-m)");
+        header.addClassName("app-encabezado");
 
         addToNavbar(header);
     }

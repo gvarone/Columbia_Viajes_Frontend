@@ -28,4 +28,14 @@ public final class Formatos {
     public static String precio(BigDecimal monto) {
         return monto == null ? "" : NumberFormat.getCurrencyInstance(LOCALE_AR).format(monto);
     }
+
+    /** Monto sin centavos, para mostrar precios redondos (ej. catálogo). */
+    public static String precioSinCentavos(BigDecimal monto) {
+        if (monto == null) {
+            return "";
+        }
+        NumberFormat formato = NumberFormat.getCurrencyInstance(LOCALE_AR);
+        formato.setMaximumFractionDigits(0);
+        return formato.format(monto);
+    }
 }

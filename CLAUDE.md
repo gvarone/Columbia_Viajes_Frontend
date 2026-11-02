@@ -33,7 +33,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
   - `BackendAuthenticationProvider` — valida credenciales contra `POST /auth/login`; principal = `UsuarioAutenticado(nombre, rol, token)`, autoridad `ROLE_<RolEnum.name()>`.
   - `SesionUsuario` — helpers estáticos de solo lectura sobre el `SecurityContext` (`getUsuario`, `getToken`, `getRol`, `tieneRol(...)`).
   - `Roles` — constantes para `@RolesAllowed` (`ADMIN`, `VENDEDOR`, `CLIENTE`, `DUENIO`), iguales a `RolEnum.name()`.
-- `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios; `LOCALE_AR` para los selectores de fecha), `Validaciones` (largo, largo máximo, email, desplegable obligatorio, entero mínimo, monto no negativo, fecha y fecha-hora; replican `@Size`/`@Email`/`@NotNull`/`@Min` del backend).
+- `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios, `precioSinCentavos` para el catálogo; `LOCALE_AR` para los selectores de fecha), `Validaciones` (largo, largo máximo, email, desplegable obligatorio, entero mínimo, monto no negativo, fecha y fecha-hora; replican `@Size`/`@Email`/`@NotNull`/`@Min` del backend).
 - `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos), `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal), `CiudadGridView` + `CiudadDialog` (ABM de referencia, ver "ABM" abajo), `PerfilView` (`GET /usuarios/me`, solo lectura; datos de turista si es Cliente) y `CambiarContraseniaDialog` (al cambiarla el backend invalida el JWT, así que avisa y hace logout).
 - Imágenes de paquetes: las pide el servidor Vaadin (`PaqueteClient.imagen`) y se sirven con `DownloadHandler.fromInputStream`; el navegador nunca llama directo al backend.
 - **ABM** (base en `views/base/`, ejemplo completo: ciudades):
@@ -62,6 +62,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 
 ## Convenciones
 - Código, nombres y mensajes en español (`listar`, `crear`, `contrasenia`, `Duenio`).
+- **Tema Aura** (no Lumo): estilos en `styles.css` con clases y variables `--vaadin-*` / `--aura-*` (nunca `--lumo-*`, con Aura no existen y el navegador las ignora). Variantes de componentes: usar las genéricas (`ButtonVariant.PRIMARY/TERTIARY/ERROR`, `NotificationVariant.SUCCESS/ERROR`, `CardVariant.OUTLINED/...`), no las `LUMO_*`. Tarjetas: componente `Card`, no `Div` con estilos a mano.
 - Vistas nuevas: `@Route(value = "...", layout = MainLayout.class)` + **anotación de acceso obligatoria** (`@RolesAllowed({Roles.X})`, `@PermitAll` o `@AnonymousAllowed`; sin anotación queda denegada). Extender `VerticalLayout implements BeforeEnterObserver` y cargar datos en `beforeEnter`.
 - Llamadas al backend en vistas: `try { ... } catch (RestClientException e) { Notificaciones.error("contexto", e); }`. No capturar `Exception`: `SesionExpiradaException` tiene que propagarse para el logout automático.
 - Grillas: toda columna ordenable. Valores directos o texto → `.setSortable(true)`; columnas formateadas (fechas, precios) → `.setComparator(Dto::campo)` para ordenar por el valor real y no por el texto.
@@ -96,9 +97,8 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 1. `README.md` desactualizado (estructura, login, pendientes).
 2. `Dockerfile` usa `--spring.profiles.active=prod` pero no existe `application-prod.properties`; `backend.url` apunta a localhost.
 3. `pom.xml` incluye repositorios `vaadin-prereleases` (innecesarios con versión estable).
-4. Estilos con variables `--lumo-*` pero el tema cargado es Aura (verificar que se vean bien).
-5. `TuristaGridView` no incluye al Dueño, aunque el backend le permite ver turistas.
-6. `ReservaGridView` no deja editar ni cancelar al Dueño (el backend sí lo permite): es a propósito, el Dueño solo consulta.
+4. `TuristaGridView` no incluye al Dueño, aunque el backend le permite ver turistas.
+5. `ReservaGridView` no deja editar ni cancelar al Dueño (el backend sí lo permite): es a propósito, el Dueño solo consulta.
 
 ## Pendientes del backend (los maneja un compañero en `main` del backend; **no modificar sin consultar**)
 - A conversar: endpoint propio para que el Vendedor cree clientes (hoy se usa el registro público, que funciona para cualquier rol).

@@ -30,7 +30,7 @@ public abstract class AbmDialog<T extends Identificable, R> extends Dialog {
         setHeaderTitle(esEdicion() ? "Editar " + entidad : "Alta de " + entidad);
 
         Button guardar = new Button("Guardar", e -> guardar());
-        guardar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        guardar.addThemeVariants(ButtonVariant.PRIMARY);
         getFooter().add(new Button("Cancelar", e -> close()), guardar);
     }
 

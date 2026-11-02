@@ -64,7 +64,7 @@ public class EditarReservaDialog extends Dialog {
                 Notificaciones.error("No se pudo actualizar la reserva", ex);
             }
         });
-        guardar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        guardar.addThemeVariants(ButtonVariant.PRIMARY);
         getFooter().add(new Button("Cancelar", e -> close()), guardar);
     }
 }

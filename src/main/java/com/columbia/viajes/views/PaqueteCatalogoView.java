@@ -16,16 +16,16 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -39,6 +39,7 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
 import jakarta.annotation.security.PermitAll;
 import java.io.ByteArrayInputStream;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -101,11 +102,7 @@ public class PaqueteCatalogoView extends VerticalLayout implements BeforeEnterOb
         HorizontalLayout filtros = new HorizontalLayout(nombre, ciudad, hotel);
         filtros.setWrap(true);
 
-        tarjetas.getStyle()
-                .set("display", "grid")
-                .set("grid-template-columns", "repeat(auto-fill, minmax(260px, 1fr))")
-                .set("gap", "var(--lumo-space-m)")
-                .set("width", "100%");
+        tarjetas.addClassName("catalogo-tarjetas");
 
         add(new H2(esVendedor ? "Paquetes de mi sucursal" : "Paquetes"), filtros, tarjetas);
     }
@@ -148,41 +145,45 @@ public class PaqueteCatalogoView extends VerticalLayout implements BeforeEnterOb
         }
     }
 
-    private Div tarjeta(PaqueteResponse paquete) {
+    private Card tarjeta(PaqueteResponse paquete) {
         HotelResponse h = hoteles.get(paquete.hotelId());
 
-        H4 titulo = new H4(paquete.nombre());
-        titulo.getStyle().set("margin", "0");
-        Span lugar = new Span(h != null ? h.nombre() + " · " + h.ciudadNombre() : "");
-        Span fechas = new Span(Formatos.fecha(paquete.fechaLlegadaHotel()) + " al "
-                + Formatos.fecha(paquete.fechaPartidaHotel()));
-        Span precio = new Span("Desde " + Formatos.precio(paquete.precio()));
-        precio.getStyle().set("font-weight", "600");
-        for (Span s : List.of(lugar, fechas)) {
-            s.getStyle().set("color", "var(--lumo-secondary-text-color)").set("font-size", "var(--lumo-font-size-s)");
-        }
+        Card card = new Card();
+        card.addThemeVariants(CardVariant.OUTLINED, CardVariant.STRETCH_MEDIA);
+        card.setMedia(imagen(paquete));
+        card.setTitle(paquete.nombre());
+
+        long noches = ChronoUnit.DAYS.between(paquete.fechaLlegadaHotel(), paquete.fechaPartidaHotel());
+        Span desde = new Span("Desde");
+        desde.addClassName("catalogo-precio-desde");
+        Span monto = new Span(Formatos.precioSinCentavos(paquete.precio()));
+        monto.addClassName("catalogo-precio-monto");
+        Div precio = new Div(desde, monto);
+        precio.addClassName("catalogo-precio");
+
+        card.add(dato(VaadinIcon.BUILDING, h != null ? h.nombre() + " · " + h.ciudadNombre() : ""),
+                dato(VaadinIcon.CALENDAR, Formatos.fecha(paquete.fechaLlegadaHotel()) + " al "
+                        + Formatos.fecha(paquete.fechaPartidaHotel())
+                        + " · " + noches + (noches == 1 ? " noche" : " noches")),
+                precio);
 
         Button detalle = new Button("Ver detalle", e -> abrirDetalle(paquete));
-        detalle.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        HorizontalLayout acciones = new HorizontalLayout(detalle);
+        card.addToFooter(detalle);
         if (esVendedor) {
             Button reservar = new Button("Reservar", e -> reservar(paquete));
-            reservar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            acciones.add(reservar);
+            reservar.addThemeVariants(ButtonVariant.PRIMARY);
+            card.addToFooter(reservar);
         }
-
-        VerticalLayout cuerpo = new VerticalLayout(titulo, lugar, fechas, precio, acciones);
-        cuerpo.setSpacing(false);
-        cuerpo.setPadding(true);
-
-        Div card = new Div(imagen(paquete), cuerpo);
-        card.getStyle()
-                .set("border-radius", "var(--lumo-border-radius-l)")
-                .set("border", "1px solid var(--lumo-contrast-10pct)")
-                .set("background", "var(--lumo-base-color)")
-                .set("box-shadow", "var(--lumo-box-shadow-s)")
-                .set("overflow", "hidden");
         return card;
+    }
+
+    /** Línea con ícono y texto secundario (hotel, fechas). */
+    private static Div dato(VaadinIcon icono, String texto) {
+        Icon i = icono.create();
+        i.setSize("16px");
+        Div fila = new Div(i, new Span(texto));
+        fila.addClassName("catalogo-dato");
+        return fila;
     }
 
     /**
@@ -192,12 +193,9 @@ public class PaqueteCatalogoView extends VerticalLayout implements BeforeEnterOb
     private Component imagen(PaqueteResponse paquete) {
         if (paquete.imagen() == null) {
             Icon icono = VaadinIcon.PICTURE.create();
-            icono.setSize("var(--lumo-icon-size-l)");
-            icono.setColor("var(--lumo-contrast-30pct)");
+            icono.setSize("48px");
             Div sinImagen = new Div(icono);
-            estiloImagen(sinImagen);
-            sinImagen.getStyle().set("display", "flex").set("align-items", "center")
-                    .set("justify-content", "center").set("background", "var(--lumo-contrast-5pct)");
+            sinImagen.addClassName("catalogo-imagen");
             return sinImagen;
         }
         Integer id = paquete.id();
@@ -212,13 +210,8 @@ public class PaqueteCatalogoView extends VerticalLayout implements BeforeEnterOb
             }
         });
         Image img = new Image(descarga, paquete.nombre());
-        estiloImagen(img);
-        img.getStyle().set("object-fit", "cover");
+        img.addClassName("catalogo-imagen");
         return img;
-    }
-
-    private static void estiloImagen(Component componente) {
-        componente.getElement().getStyle().set("width", "100%").set("height", "160px").set("display", "block");
     }
 
     private void abrirDetalle(PaqueteResponse paquete) {

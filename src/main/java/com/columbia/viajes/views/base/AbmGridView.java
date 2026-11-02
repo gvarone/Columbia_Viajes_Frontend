@@ -47,7 +47,7 @@ public abstract class AbmGridView<T extends Identificable, R> extends VerticalLa
         }
 
         Button nuevo = new Button(textoNuevo, VaadinIcon.PLUS.create(), e -> abrirDialogo(null));
-        nuevo.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        nuevo.addThemeVariants(ButtonVariant.PRIMARY);
         nuevo.setVisible(puedeEditar());
 
         HorizontalLayout encabezado = new HorizontalLayout(new H2(titulo), nuevo);
@@ -97,11 +97,11 @@ public abstract class AbmGridView<T extends Identificable, R> extends VerticalLa
 
     private HorizontalLayout crearAcciones(T item) {
         Button editar = new Button(VaadinIcon.EDIT.create(), e -> abrirDialogo(item));
-        editar.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        editar.addThemeVariants(ButtonVariant.TERTIARY);
         editar.setTooltipText("Editar");
 
         Button eliminar = new Button(VaadinIcon.TRASH.create(), e -> confirmarEliminar(item));
-        eliminar.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+        eliminar.addThemeVariants(ButtonVariant.TERTIARY, ButtonVariant.ERROR);
         eliminar.setTooltipText("Eliminar");
 
         return new HorizontalLayout(editar, eliminar);

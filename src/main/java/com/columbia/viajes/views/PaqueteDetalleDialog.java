@@ -60,7 +60,7 @@ public class PaqueteDetalleDialog extends Dialog {
                 close();
                 alReservar.run();
             });
-            reservar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            reservar.addThemeVariants(ButtonVariant.PRIMARY);
             getFooter().add(reservar);
         }
     }

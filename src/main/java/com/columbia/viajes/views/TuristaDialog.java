@@ -35,7 +35,7 @@ public class TuristaDialog extends Dialog {
                 Notificaciones.error("No se pudo crear el turista", ex);
             }
         });
-        guardar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        guardar.addThemeVariants(ButtonVariant.PRIMARY);
         getFooter().add(new Button("Cancelar", e -> close()), guardar);
     }
 }

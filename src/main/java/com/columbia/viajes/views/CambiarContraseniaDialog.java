@@ -44,7 +44,7 @@ public class CambiarContraseniaDialog extends Dialog {
         add(campos);
 
         Button guardar = new Button("Guardar", e -> guardar());
-        guardar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        guardar.addThemeVariants(ButtonVariant.PRIMARY);
         getFooter().add(new Button("Cancelar", e -> close()), guardar);
 
         addOpenedChangeListener(e -> limpiar());

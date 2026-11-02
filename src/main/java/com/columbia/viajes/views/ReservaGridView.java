@@ -89,9 +89,9 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
         if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
             grid.addComponentColumn(r -> {
                 Button editar = new Button("Editar", e -> editar(r));
-                editar.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                editar.addThemeVariants(ButtonVariant.TERTIARY);
                 Button cancelar = new Button("Cancelar", e -> confirmarCancelacion(r));
-                cancelar.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
+                cancelar.addThemeVariants(ButtonVariant.ERROR, ButtonVariant.TERTIARY);
                 return new HorizontalLayout(editar, cancelar);
             }).setAutoWidth(true).setFlexGrow(0);
         }
@@ -100,7 +100,7 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
         if (SesionUsuario.tieneRol(VENDEDOR)) {
             Button nueva = new Button("Nueva reserva", VaadinIcon.PLUS.create(),
                     e -> UI.getCurrent().navigate(NuevaReservaView.class));
-            nueva.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            nueva.addThemeVariants(ButtonVariant.PRIMARY);
             encabezado.add(nueva);
         }
         encabezado.setWidthFull();

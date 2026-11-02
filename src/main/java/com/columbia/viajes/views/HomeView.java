@@ -4,10 +4,11 @@ import com.columbia.viajes.security.SesionUsuario;
 import com.columbia.viajes.views.base.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -38,10 +39,10 @@ public class HomeView extends VerticalLayout {
         H1 titulo = new H1("Bienvenido, " + nombre);
         titulo.getStyle().set("margin", "0");
         Paragraph subtitulo = new Paragraph("Sesión iniciada como " + rol + ".");
-        subtitulo.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        subtitulo.addClassName("texto-secundario");
         add(titulo, subtitulo);
 
-        List<Div> reservas = new ArrayList<>();
+        List<Card> reservas = new ArrayList<>();
         if (SesionUsuario.tieneRol(VENDEDOR)) {
             reservas.add(tarjeta(VaadinIcon.PLUS_CIRCLE, "Hacer reserva",
                     "Cargar una reserva de paquete para un turista.", NuevaReservaView.class, true));
@@ -57,7 +58,7 @@ public class HomeView extends VerticalLayout {
         }
         add(seccion("Reservas"), grilla(reservas));
 
-        List<Div> catalogo = new ArrayList<>();
+        List<Card> catalogo = new ArrayList<>();
         catalogo.add(tarjeta(VaadinIcon.SUITCASE, "Paquetes",
                 SesionUsuario.tieneRol(VENDEDOR) ? "Paquetes de tu sucursal para reservar."
                         : "Paquetes de viaje disponibles.",
@@ -83,45 +84,32 @@ public class HomeView extends VerticalLayout {
 
     private H3 seccion(String texto) {
         H3 h = new H3(texto);
-        h.getStyle().set("margin", "var(--lumo-space-l) 0 0 0");
+        h.addClassName("inicio-seccion");
         return h;
     }
 
-    private Div grilla(List<Div> tarjetas) {
-        Div grilla = new Div(tarjetas.toArray(Div[]::new));
-        grilla.getStyle()
-                .set("display", "grid")
-                .set("grid-template-columns", "repeat(auto-fill, minmax(240px, 1fr))")
-                .set("gap", "var(--lumo-space-m)")
-                .set("width", "100%");
+    private Div grilla(List<Card> tarjetas) {
+        Div grilla = new Div(tarjetas.toArray(Card[]::new));
+        grilla.addClassName("inicio-tarjetas");
         return grilla;
     }
 
-    private Div tarjeta(VaadinIcon icono, String titulo, String descripcion,
-                        Class<? extends Component> destino, boolean destacada) {
+    /** Acceso a una sección. "destacada" marca la acción principal del rol (borde e ícono de acento). */
+    private Card tarjeta(VaadinIcon icono, String titulo, String descripcion,
+                         Class<? extends Component> destino, boolean destacada) {
         Icon icon = icono.create();
-        icon.setSize("var(--lumo-icon-size-l)");
-        icon.setColor(destacada ? "var(--lumo-primary-color)" : "var(--lumo-contrast-60pct)");
+        icon.setSize("32px");
 
-        H4 h = new H4(titulo);
-        h.getStyle().set("margin", "var(--lumo-space-s) 0 var(--lumo-space-xs) 0");
-
-        Paragraph p = new Paragraph(descripcion);
-        p.getStyle().set("margin", "0")
-                .set("color", "var(--lumo-secondary-text-color)")
-                .set("font-size", "var(--lumo-font-size-s)");
-
-        Div card = new Div(icon, h, p);
-        card.getStyle()
-                .set("padding", "var(--lumo-space-m)")
-                .set("border-radius", "var(--lumo-border-radius-l)")
-                .set("background", "var(--lumo-base-color)")
-                .set("box-shadow", "var(--lumo-box-shadow-s)")
-                .set("border", destacada
-                        ? "2px solid var(--lumo-primary-color)"
-                        : "1px solid var(--lumo-contrast-10pct)")
-                .set("cursor", "pointer");
-        card.addClickListener(e -> UI.getCurrent().navigate(destino));
+        Card card = new Card();
+        card.addThemeVariants(CardVariant.OUTLINED);
+        card.setHeaderPrefix(icon);
+        card.setTitle(titulo);
+        card.setSubtitle(descripcion);
+        card.addClassName("inicio-tarjeta");
+        if (destacada) {
+            card.addClassName("inicio-tarjeta-destacada");
+        }
+        card.getElement().addEventListener("click", e -> UI.getCurrent().navigate(destino));
         return card;
     }
 }

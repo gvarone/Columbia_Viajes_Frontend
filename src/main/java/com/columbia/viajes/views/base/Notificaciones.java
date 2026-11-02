@@ -13,12 +13,12 @@ public final class Notificaciones {
 
     public static void exito(String mensaje) {
         Notification.show(mensaje, 3000, Notification.Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                .addThemeVariants(NotificationVariant.SUCCESS);
     }
 
     public static void error(String mensaje) {
         Notification.show(mensaje, 5000, Notification.Position.TOP_CENTER)
-                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                .addThemeVariants(NotificationVariant.ERROR);
     }
 
     public static void error(String contexto, RestClientException e) {

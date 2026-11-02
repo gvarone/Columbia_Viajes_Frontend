@@ -89,7 +89,7 @@ public class NuevaReservaView extends VerticalLayout implements BeforeEnterObser
         regimen.setValue(RegimenHospedaje.MEDIA_PENSION);
 
         Button guardar = new Button("Confirmar reserva", e -> guardar());
-        guardar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        guardar.addThemeVariants(ButtonVariant.PRIMARY);
 
         add(new H2("Nueva reserva"), filaTurista, paquete, clase, regimen, guardar);
     }

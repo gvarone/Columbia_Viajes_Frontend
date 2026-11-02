@@ -40,7 +40,7 @@ public class TuristaGridView extends VerticalLayout implements BeforeEnterObserv
 
         Button nuevo = new Button("Nuevo turista", VaadinIcon.PLUS.create(),
                 e -> new TuristaDialog(client, creado -> cargar()).open());
-        nuevo.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        nuevo.addThemeVariants(ButtonVariant.PRIMARY);
 
         HorizontalLayout encabezado = new HorizontalLayout(new H2("Turistas"), nuevo);
         encabezado.setWidthFull();

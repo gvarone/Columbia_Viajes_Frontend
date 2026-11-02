@@ -5,6 +5,8 @@ import com.columbia.viajes.views.base.Notificaciones;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -40,7 +42,7 @@ public class RegistroView extends VerticalLayout implements BeforeEnterObserver 
         setAlignItems(FlexComponent.Alignment.CENTER);
 
         H1 titulo = new H1("Columbia Viajes");
-        titulo.getStyle().set("color", "var(--lumo-primary-color)");
+        titulo.addClassName("titulo-app");
 
         Button crear = new Button("Crear cuenta", e -> {
             List<String> errores = formulario.validar();
@@ -56,7 +58,7 @@ public class RegistroView extends VerticalLayout implements BeforeEnterObserver 
                 Notificaciones.error("No se pudo crear la cuenta", ex);
             }
         });
-        crear.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        crear.addThemeVariants(ButtonVariant.PRIMARY);
 
         RouterLink irAlLogin = new RouterLink("Iniciar sesión", LoginView.class);
         HorizontalLayout pie = new HorizontalLayout(new Span("¿Ya tenés cuenta?"), irAlLogin, crear);
@@ -64,12 +66,13 @@ public class RegistroView extends VerticalLayout implements BeforeEnterObserver 
         pie.setAlignItems(FlexComponent.Alignment.CENTER);
         pie.expand(irAlLogin); // empuja el botón hacia la derecha
 
-        VerticalLayout tarjeta = new VerticalLayout(new H2("Crear cuenta"), formulario, pie);
+        Card tarjeta = new Card();
+        tarjeta.addThemeVariants(CardVariant.ELEVATED);
+        tarjeta.setTitle(new H2("Crear cuenta"));
+        tarjeta.add(formulario);
+        tarjeta.addToFooter(pie);
+        tarjeta.setWidthFull();
         tarjeta.setMaxWidth("640px");
-        tarjeta.getStyle()
-                .set("background", "var(--lumo-base-color)")
-                .set("border-radius", "var(--lumo-border-radius-l)")
-                .set("box-shadow", "var(--lumo-box-shadow-s)");
 
         add(titulo, tarjeta);
     }
