@@ -33,12 +33,13 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
   - `BackendAuthenticationProvider` — valida credenciales contra `POST /auth/login`; principal = `UsuarioAutenticado(nombre, rol, token)`, autoridad `ROLE_<RolEnum.name()>`.
   - `SesionUsuario` — helpers estáticos de solo lectura sobre el `SecurityContext` (`getUsuario`, `getToken`, `getRol`, `tieneRol(...)`).
   - `Roles` — constantes para `@RolesAllowed` (`ADMIN`, `VENDEDOR`, `CLIENTE`, `DUENIO`), iguales a `RolEnum.name()`.
-- `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios), `Validaciones` (largo y email de campos, replican `@Size`/`@Email` del backend).
+- `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios), `Validaciones` (largo, email, desplegable obligatorio y entero mínimo; replican `@Size`/`@Email`/`@NotNull`/`@Min` del backend).
 - `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos) `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal), `CiudadGridView` + `CiudadDialog` (ABM de referencia, ver "ABM" abajo), `PerfilView` (`GET /usuarios/me`, solo lectura; datos de turista si es Cliente) y `CambiarContraseniaDialog` (al cambiarla el backend invalida el JWT, así que avisa y hace logout).
 - Imágenes de paquetes: las pide el servidor Vaadin (`PaqueteClient.imagen`) y se sirven con `DownloadHandler.fromInputStream`; el navegador nunca llama directo al backend.
 - **ABM** (base en `views/base/`, ejemplo completo: ciudades):
   - `dto/response/Identificable` (`Integer id()`; un record con campo `id` la cumple con solo `implements Identificable`) y `client/ClienteAbm<T, R>` (`listar/crear/actualizar/eliminar`, la implementa el cliente de la entidad).
   - `AbmGridView<T, R>`: encabezado + botón "Nuevo" + columna editar/eliminar (solo si `puedeEditar()`, por defecto Admin) + `ConfirmDialog` de baja. La subclase pone `@Route` y acceso, y define `configurarColumnas()` (se llama desde el constructor de la base: no usar campos de la subclase fuera de lambdas), `crearDialogo(item)` y `descripcion(item)` ("la ciudad \"CABA\"").
+  - Desplegables de otra entidad (ej. ciudad del hotel): la grilla carga la lista en `beforeEnter` (override que llama a `super.beforeEnter`) y se la pasa al diálogo. Si el Response trae el nombre y no el ID (`HotelResponse.ciudadNombre`), al editar se preselecciona por nombre.
   - `AbmDialog<T, R>`: alta si `item` es null, edición si no; decide crear/actualizar y maneja errores. La subclase agrega sus campos en el constructor (los completa si `esEdicion()`), y define `validar()` (lista de errores, replica el `@Valid` del backend) y `armarRequest()`.
 - `views/TuristaForm` — campos y validaciones de turista + cuenta Cliente, compartido por `TuristaDialog` y `RegistroView` (no duplicar).
 
@@ -46,7 +47,8 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 | Vista | Cliente | Vendedor | Admin | Dueño |
 |---|---|---|---|---|
 | Login, Registro | anónimo | | | |
-| Inicio, Vuelos, Hoteles | x | x | x | x |
+| Inicio, Vuelos | x | x | x | x |
+| Hoteles | x | x | x (+ABM) | x |
 | Paquetes (catálogo) | x | x (solo su sucursal, +Reservar) | x | x |
 | Hacer reserva | | x | | |
 | Reservas | x ("Mis reservas", solo ver) | x (+editar/cancelar, solo su sucursal) | x (+editar/cancelar) | x (solo ver) |
@@ -109,7 +111,7 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 **Funcionalidad por rol**:
 - **Cliente**: registro, consulta de vuelos/hoteles/paquetes y "Mis reservas" hechos; y "Mi perfil" (solo lectura) hechos.
 - **Vendedor**: alta, edición (clase/régimen) y cancelación de reservas, catálogo con "Reservar" y alta de turistas hechos; falta edición de turistas.
-- **Administrador**: ABM de ciudades y sucursales hechos; faltan los de hoteles, vuelos, paquetes y usuarios (hoy solo lectura). Los ABM los edita solo el Admin; el Dueño consulta.
+- **Administrador**: ABM de ciudades, sucursales y hoteles hechos; faltan los de vuelos, paquetes y usuarios (hoy solo lectura). Los ABM los edita solo el Admin; el Dueño consulta.
 - **Dueño**: ranking de vendedores hecho.
 - Cambio de contraseña: hecho (desde "Mi perfil", todos los roles).
 

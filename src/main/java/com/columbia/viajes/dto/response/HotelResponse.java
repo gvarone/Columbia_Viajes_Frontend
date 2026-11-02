@@ -7,4 +7,4 @@ public record HotelResponse(
         String ciudadNombre,
         String telefono,
         Integer plazasTotales
-) {}
+) implements Identificable {}

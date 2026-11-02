@@ -1,6 +1,8 @@
 package com.columbia.viajes.views.base;
 
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.List;
 
@@ -27,6 +29,23 @@ public final class Validaciones {
         if (campo.getValue().trim().isEmpty() || campo.isInvalid()) {
             campo.setInvalid(true);
             errores.add(campo.getLabel() + ": ingresá un email válido.");
+        }
+    }
+
+    /** Opción obligatoria en un desplegable (@NotNull sobre un ID). */
+    public static void seleccionado(ComboBox<?> campo, List<String> errores) {
+        if (campo.isEmpty()) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": elegí una opción.");
+        }
+    }
+
+    /** Número entero obligatorio y no menor al mínimo configurado en el campo (setMin). */
+    public static void entero(IntegerField campo, List<String> errores) {
+        Integer valor = campo.getValue();
+        if (valor == null || valor < campo.getMin()) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": ingresá un número mayor o igual a " + campo.getMin() + ".");
         }
     }
 }
