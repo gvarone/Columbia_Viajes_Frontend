@@ -58,28 +58,51 @@ public class HomeView extends VerticalLayout {
         }
         add(seccion("Reservas"), grilla(reservas));
 
+        boolean esAdmin = SesionUsuario.tieneRol(ADMIN);
+
         List<Card> catalogo = new ArrayList<>();
         catalogo.add(tarjeta(VaadinIcon.SUITCASE, "Paquetes",
                 SesionUsuario.tieneRol(VENDEDOR) ? "Paquetes de tu sucursal para reservar."
                         : "Paquetes de viaje disponibles.",
-                PaqueteCatalogoView.class, !SesionUsuario.tieneRol(VENDEDOR)));
+                PaqueteCatalogoView.class, SesionUsuario.tieneRol(CLIENTE)));
         if (SesionUsuario.tieneRol(VENDEDOR, ADMIN, DUENIO)) {
             catalogo.add(tarjeta(VaadinIcon.USERS, "Turistas",
-                    "Registrar y consultar turistas.", TuristaGridView.class, false));
+                    esAdmin ? "Alta, edición y baja de turistas."
+                            : SesionUsuario.tieneRol(VENDEDOR) ? "Registrar y consultar turistas."
+                            : "Consultar los turistas registrados.",
+                    TuristaGridView.class, false));
         }
         catalogo.add(tarjeta(VaadinIcon.AIRPLANE, "Vuelos",
-                "Vuelos disponibles y plazas.", VueloGridView.class, false));
+                esAdmin ? "Alta, edición y baja de vuelos." : "Vuelos disponibles y plazas.",
+                VueloGridView.class, false));
         catalogo.add(tarjeta(VaadinIcon.BUILDING, "Hoteles",
-                "Hoteles disponibles y plazas.", HotelGridView.class, false));
+                esAdmin ? "Alta, edición y baja de hoteles." : "Hoteles disponibles y plazas.",
+                HotelGridView.class, false));
         add(seccion("Catálogo"), grilla(catalogo));
 
         if (SesionUsuario.tieneRol(ADMIN, DUENIO)) {
-            add(seccion("Administración"), grilla(List.of(
-                    tarjeta(VaadinIcon.USER_CARD, "Usuarios",
-                            "Usuarios del sistema.", UsuarioGridView.class, false),
-                    tarjeta(VaadinIcon.OFFICE, "Sucursales",
-                            "Sucursales de la cadena.", SucursalGridView.class, false))));
+            String accion = esAdmin ? "Alta, edición y baja de " : "Consultar ";
+            List<Card> administracion = new ArrayList<>();
+            if (SesionUsuario.tieneRol(DUENIO)) {
+                administracion.add(tarjeta(VaadinIcon.TROPHY, "Ranking de vendedores",
+                        "Vendedores ordenados por total vendido.", RankingVendedoresView.class, true));
+            }
+            administracion.add(tarjeta(VaadinIcon.USER_CARD, "Usuarios",
+                    esAdmin ? "Alta de vendedores; edición y baja de vendedores y clientes."
+                            : "Consultar los usuarios del sistema.",
+                    UsuarioGridView.class, false));
+            administracion.add(tarjeta(VaadinIcon.OFFICE, "Sucursales",
+                    accion + "sucursales.", SucursalGridView.class, false));
+            administracion.add(tarjeta(VaadinIcon.MAP_MARKER, "Ciudades",
+                    accion + "ciudades.", CiudadGridView.class, false));
+            administracion.add(tarjeta(VaadinIcon.PACKAGE, "Gestión de paquetes",
+                    accion + "paquetes.", PaqueteGridView.class, false));
+            add(seccion("Administración"), grilla(administracion));
         }
+
+        add(seccion("Mi cuenta"), grilla(List.of(
+                tarjeta(VaadinIcon.USER, "Mi perfil",
+                        "Ver tus datos y cambiar la contraseña.", PerfilView.class, false))));
     }
 
     private H3 seccion(String texto) {
