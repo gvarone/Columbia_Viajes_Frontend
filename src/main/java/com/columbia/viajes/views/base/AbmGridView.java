@@ -73,6 +73,14 @@ public abstract class AbmGridView<T extends Identificable, R> extends VerticalLa
     /** Descripción para los mensajes, con artículo: la ciudad "CABA". */
     protected abstract String descripcion(T item);
 
+    /**
+     * Si un registro puntual se puede editar/eliminar (además de {@link #puedeEditar()}).
+     * Por defecto todos; una subclase lo sobrescribe si el backend restringe algunos.
+     */
+    protected boolean puedeModificar(T item) {
+        return true;
+    }
+
     /** Por defecto solo el Admin edita; el Dueño consulta. Una subclase puede cambiarlo. */
     protected boolean puedeEditar() {
         return SesionUsuario.tieneRol(ADMIN);
@@ -96,6 +104,9 @@ public abstract class AbmGridView<T extends Identificable, R> extends VerticalLa
     }
 
     private HorizontalLayout crearAcciones(T item) {
+        if (!puedeModificar(item)) {
+            return new HorizontalLayout();
+        }
         Button editar = new Button(VaadinIcon.EDIT.create(), e -> abrirDialogo(item));
         editar.addThemeVariants(ButtonVariant.TERTIARY);
         editar.setTooltipText("Editar");

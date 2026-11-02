@@ -54,15 +54,7 @@ public class TuristaForm extends VerticalLayout {
             Validaciones.largo(campo, errores);
         }
         Validaciones.email(email, errores);
-        // La contraseña no se recorta: los espacios forman parte de ella
-        String clave = contrasenia.getValue();
-        if (clave.isBlank() || clave.length() < 8 || clave.length() > 64) {
-            contrasenia.setInvalid(true);
-            errores.add("Contraseña: entre 8 y 64 caracteres.");
-        } else if (!clave.equals(repetirContrasenia.getValue())) {
-            repetirContrasenia.setInvalid(true);
-            errores.add("Las contraseñas no coinciden.");
-        }
+        Validaciones.contrasenia(contrasenia, repetirContrasenia, errores);
         return errores;
     }
 

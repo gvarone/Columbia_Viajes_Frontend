@@ -6,6 +6,7 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import java.math.BigDecimal;
@@ -84,6 +85,21 @@ public final class Validaciones {
         if (campo.getValue().trim().length() > campo.getMaxLength()) {
             campo.setInvalid(true);
             errores.add(campo.getLabel() + ": hasta " + campo.getMaxLength() + " caracteres.");
+        }
+    }
+
+    /**
+     * Contraseña obligatoria de 8 a 64 caracteres y repetida igual. No se recorta:
+     * los espacios forman parte de la contraseña.
+     */
+    public static void contrasenia(PasswordField campo, PasswordField repetir, List<String> errores) {
+        String clave = campo.getValue();
+        if (clave.isBlank() || clave.length() < 8 || clave.length() > 64) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": entre 8 y 64 caracteres.");
+        } else if (!clave.equals(repetir.getValue())) {
+            repetir.setInvalid(true);
+            errores.add("Las contraseñas no coinciden.");
         }
     }
 }

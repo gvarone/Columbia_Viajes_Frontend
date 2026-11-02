@@ -9,4 +9,4 @@ public record UsuarioResponse(
         String rolNombre,
         LocalDateTime fechaCreacion,
         Integer sucursalId
-) {}
+) implements Identificable {}
