@@ -20,6 +20,7 @@ Navegador → Front Vaadin (:8081, este repo) → API REST backend (:8080, ../Co
 ./mvnw clean compile      # compilar
 ./mvnw spring-boot:run    # correr (goal por defecto de `./mvnw`); levantar antes el backend
 ./mvnw -o -q compile      # compilación rápida offline para verificar cambios
+docker build -t columbia-viajes-front .   # imagen; la URL del backend va en BACKEND_URL
 ```
 No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 
@@ -98,11 +99,8 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 - **Ranking de vendedores del Dueño**: lo calcula el backend (`GET /paquetes-reservas/ranking-vendedores`); no se calcula en el front.
 - Seguridad con Spring Security + Vaadin (no mecanismo casero).
 
-## Errores conocidos del front (al 2026-10-19)
-1. `README.md` desactualizado (estructura, login, pendientes).
-2. `Dockerfile` usa `--spring.profiles.active=prod` pero no existe `application-prod.properties`; `backend.url` apunta a localhost.
-3. `pom.xml` incluye repositorios `vaadin-prereleases` (innecesarios con versión estable).
-4. `ReservaGridView` no deja editar ni cancelar al Dueño (el backend sí lo permite): es a propósito, el Dueño solo consulta.
+## Errores conocidos del front
+- `ReservaGridView` no deja editar ni cancelar al Dueño (el backend sí lo permite): es a propósito, el Dueño solo consulta.
 
 ## Pendientes del backend (los maneja un compañero en `main` del backend; **no modificar sin consultar**)
 - **Permitir al Vendedor editar turistas** (`PUT /turistas/{id}`): el dominio dice que los vendedores "administrarán las reservas y a los clientes"; hoy `PUT`/`DELETE /turistas` es solo Admin/Dueño.

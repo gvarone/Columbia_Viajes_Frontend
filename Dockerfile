@@ -1,30 +1,21 @@
-FROM ghcr.io/jqlang/jq:latest AS jq-stage
+# Imagen del front (Vaadin + Spring Boot). Construir desde esta carpeta:
+#
+#   docker build -t columbia-viajes-front .
+#
+# La URL del backend se pasa con la variable BACKEND_URL (Spring la toma como backend.url).
+# Dentro de un contenedor, "localhost" es el propio contenedor: si el backend corre en la
+# máquina host, usar host.docker.internal:
+#
+#   docker run -p 8081:8081 -e BACKEND_URL=http://host.docker.internal:8080/api \
+#       --add-host=host.docker.internal:host-gateway columbia-viajes-front
 
 FROM eclipse-temurin:21-jdk AS build
-COPY --from=jq-stage /jq /usr/bin/jq
-# Test that jq works after copying
-RUN jq --version
-
-ENV HOME=/app
-RUN mkdir -p $HOME
-WORKDIR $HOME
-COPY . $HOME
-
-# If you have a Vaadin Pro key, pass it as a secret with id "proKey":
-#
-#   $ docker build --secret id=proKey,src=$HOME/.vaadin/proKey .
-#
-# If you have a Vaadin Offline key, pass it as a secret with id "offlineKey":
-#
-#   $ docker build --secret id=offlineKey,src=$HOME/.vaadin/offlineKey .
-
-RUN --mount=type=cache,target=/root/.m2 \
-    --mount=type=secret,id=proKey \
-    --mount=type=secret,id=offlineKey \
-    sh -c 'PRO_KEY=$(jq -r ".proKey // empty" /run/secrets/proKey 2>/dev/null || echo "") && \
-    OFFLINE_KEY=$(cat /run/secrets/offlineKey 2>/dev/null || echo "") && \
-    ./mvnw clean package -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
+WORKDIR /app
+COPY . .
+# El paquete incluye el build de producción del frontend (goal build-frontend del vaadin-maven-plugin)
+RUN --mount=type=cache,target=/root/.m2 ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
-COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.profiles.active=prod"]
+COPY --from=build /app/target/*.jar /app.jar
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "/app.jar"]
