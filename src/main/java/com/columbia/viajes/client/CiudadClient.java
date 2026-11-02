@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
-public class CiudadClient {
+public class CiudadClient implements ClienteAbm<CiudadResponse, CiudadRequest> {
 
     private final RestClient restClient;
 
@@ -16,6 +16,7 @@ public class CiudadClient {
         this.restClient = restClient;
     }
 
+    @Override
     public List<CiudadResponse> listar() {
         return restClient.get()
                 .uri("/ciudades")
@@ -23,6 +24,7 @@ public class CiudadClient {
                 .body(new ParameterizedTypeReference<List<CiudadResponse>>() {});
     }
 
+    @Override
     public CiudadResponse crear(CiudadRequest request) {
         return restClient.post()
                 .uri("/ciudades")
@@ -31,6 +33,7 @@ public class CiudadClient {
                 .body(CiudadResponse.class);
     }
 
+    @Override
     public CiudadResponse actualizar(Integer id, CiudadRequest request) {
         return restClient.put()
                 .uri("/ciudades/{id}", id)
@@ -39,6 +42,7 @@ public class CiudadClient {
                 .body(CiudadResponse.class);
     }
 
+    @Override
     public void eliminar(Integer id) {
         restClient.delete()
                 .uri("/ciudades/{id}", id)
