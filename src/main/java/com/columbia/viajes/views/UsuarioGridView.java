@@ -35,11 +35,12 @@ public class UsuarioGridView extends VerticalLayout implements BeforeEnterObserv
         this.usuarioClient = usuarioClient;
         this.sucursalClient = sucursalClient;
 
-        grid.addColumn(UsuarioResponse::id).setHeader("ID").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(UsuarioResponse::nombre).setHeader("Nombre");
-        grid.addColumn(UsuarioResponse::rolNombre).setHeader("Rol");
-        grid.addColumn(u -> Formatos.fechaHora(u.fechaCreacion())).setHeader("Fecha de creación");
-        grid.addColumn(this::sucursal).setHeader("Sucursal");
+        grid.addColumn(UsuarioResponse::id).setHeader("ID").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(UsuarioResponse::nombre).setHeader("Nombre").setSortable(true);
+        grid.addColumn(UsuarioResponse::rolNombre).setHeader("Rol").setSortable(true);
+        grid.addColumn(u -> Formatos.fechaHora(u.fechaCreacion())).setHeader("Fecha de creación")
+                .setComparator(UsuarioResponse::fechaCreacion);
+        grid.addColumn(this::sucursal).setHeader("Sucursal").setSortable(true);
 
         add(new H2("Usuarios"), grid);
         setSizeFull();

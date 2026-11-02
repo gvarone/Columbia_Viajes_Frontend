@@ -31,12 +31,12 @@ public class TuristaGridView extends VerticalLayout implements BeforeEnterObserv
     public TuristaGridView(TuristaClient client) {
         this.client = client;
 
-        grid.addColumn(TuristaResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(TuristaResponse::nombre).setHeader("Nombre");
-        grid.addColumn(TuristaResponse::apellidos).setHeader("Apellidos");
-        grid.addColumn(TuristaResponse::direccion).setHeader("Dirección");
-        grid.addColumn(TuristaResponse::email).setHeader("Email");
-        grid.addColumn(TuristaResponse::telefono).setHeader("Teléfono");
+        grid.addColumn(TuristaResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(TuristaResponse::nombre).setHeader("Nombre").setSortable(true);
+        grid.addColumn(TuristaResponse::apellidos).setHeader("Apellidos").setSortable(true);
+        grid.addColumn(TuristaResponse::direccion).setHeader("Dirección").setSortable(true);
+        grid.addColumn(TuristaResponse::email).setHeader("Email").setSortable(true);
+        grid.addColumn(TuristaResponse::telefono).setHeader("Teléfono").setSortable(true);
 
         Button nuevo = new Button("Nuevo turista", VaadinIcon.PLUS.create(),
                 e -> new TuristaDialog(client, creado -> cargar()).open());

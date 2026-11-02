@@ -42,11 +42,12 @@ public class RankingVendedoresView extends VerticalLayout implements BeforeEnter
         this.reservaClient = reservaClient;
         this.sucursalClient = sucursalClient;
 
-        grid.addColumn(r -> ranking.indexOf(r) + 1).setHeader("Puesto").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(RankingVendedorResponse::nombre).setHeader("Vendedor");
+        grid.addColumn(r -> ranking.indexOf(r) + 1).setHeader("Puesto").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(RankingVendedorResponse::nombre).setHeader("Vendedor").setSortable(true);
         grid.addColumn(r -> sucursales.getOrDefault(r.sucursalId(), "Sucursal " + r.sucursalId()))
-                .setHeader("Sucursal");
+                .setHeader("Sucursal").setSortable(true);
         grid.addColumn(r -> Formatos.precio(r.totalVendido())).setHeader("Total vendido")
+                .setComparator(RankingVendedorResponse::totalVendido)
                 .setTextAlign(ColumnTextAlign.END);
 
         add(new H2("Ranking de vendedores"), grid);

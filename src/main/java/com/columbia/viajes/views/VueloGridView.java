@@ -26,13 +26,15 @@ public class VueloGridView extends VerticalLayout implements BeforeEnterObserver
     public VueloGridView(VueloClient client) {
         this.client = client;
 
-        grid.addColumn(VueloResponse::id).setHeader("N° vuelo").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(VueloResponse::ciudadOrigenNombre).setHeader("Origen");
-        grid.addColumn(VueloResponse::ciudadDestinoNombre).setHeader("Destino");
-        grid.addColumn(v -> Formatos.fechaHora(v.fechaSalida())).setHeader("Salida");
-        grid.addColumn(v -> Formatos.fechaHora(v.fechaLlegada())).setHeader("Llegada");
-        grid.addColumn(VueloResponse::plazasTuristaTotales).setHeader("Plazas turista");
-        grid.addColumn(VueloResponse::plazasPrimeraTotales).setHeader("Plazas primera");
+        grid.addColumn(VueloResponse::id).setHeader("N° vuelo").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(VueloResponse::ciudadOrigenNombre).setHeader("Origen").setSortable(true);
+        grid.addColumn(VueloResponse::ciudadDestinoNombre).setHeader("Destino").setSortable(true);
+        grid.addColumn(v -> Formatos.fechaHora(v.fechaSalida())).setHeader("Salida")
+                .setComparator(VueloResponse::fechaSalida);
+        grid.addColumn(v -> Formatos.fechaHora(v.fechaLlegada())).setHeader("Llegada")
+                .setComparator(VueloResponse::fechaLlegada);
+        grid.addColumn(VueloResponse::plazasTuristaTotales).setHeader("Plazas turista").setSortable(true);
+        grid.addColumn(VueloResponse::plazasPrimeraTotales).setHeader("Plazas primera").setSortable(true);
 
         add(new H2("Vuelos"), grid);
         setSizeFull();

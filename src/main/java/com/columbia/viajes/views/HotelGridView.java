@@ -25,12 +25,12 @@ public class HotelGridView extends VerticalLayout implements BeforeEnterObserver
     public HotelGridView(HotelClient client) {
         this.client = client;
 
-        grid.addColumn(HotelResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(HotelResponse::nombre).setHeader("Nombre");
-        grid.addColumn(HotelResponse::direccion).setHeader("Dirección");
-        grid.addColumn(HotelResponse::ciudadNombre).setHeader("Ciudad");
-        grid.addColumn(HotelResponse::telefono).setHeader("Teléfono");
-        grid.addColumn(HotelResponse::plazasTotales).setHeader("Plazas");
+        grid.addColumn(HotelResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(HotelResponse::nombre).setHeader("Nombre").setSortable(true);
+        grid.addColumn(HotelResponse::direccion).setHeader("Dirección").setSortable(true);
+        grid.addColumn(HotelResponse::ciudadNombre).setHeader("Ciudad").setSortable(true);
+        grid.addColumn(HotelResponse::telefono).setHeader("Teléfono").setSortable(true);
+        grid.addColumn(HotelResponse::plazasTotales).setHeader("Plazas").setSortable(true);
 
         add(new H2("Hoteles"), grid);
         setSizeFull();

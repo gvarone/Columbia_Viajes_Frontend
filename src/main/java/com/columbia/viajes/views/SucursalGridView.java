@@ -26,10 +26,10 @@ public class SucursalGridView extends VerticalLayout implements BeforeEnterObser
     public SucursalGridView(SucursalClient client) {
         this.client = client;
 
-        grid.addColumn(SucursalResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(SucursalResponse::direccion).setHeader("Dirección");
-        grid.addColumn(SucursalResponse::email).setHeader("Email");
-        grid.addColumn(SucursalResponse::telefono).setHeader("Teléfono");
+        grid.addColumn(SucursalResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(SucursalResponse::direccion).setHeader("Dirección").setSortable(true);
+        grid.addColumn(SucursalResponse::email).setHeader("Email").setSortable(true);
+        grid.addColumn(SucursalResponse::telefono).setHeader("Teléfono").setSortable(true);
 
         add(new H2("Sucursales"), grid);
         setSizeFull();

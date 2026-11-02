@@ -56,6 +56,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 - Código, nombres y mensajes en español (`listar`, `crear`, `contrasenia`, `Duenio`).
 - Vistas nuevas: `@Route(value = "...", layout = MainLayout.class)` + **anotación de acceso obligatoria** (`@RolesAllowed({Roles.X})`, `@PermitAll` o `@AnonymousAllowed`; sin anotación queda denegada). Extender `VerticalLayout implements BeforeEnterObserver` y cargar datos en `beforeEnter`.
 - Llamadas al backend en vistas: `try { ... } catch (RestClientException e) { Notificaciones.error("contexto", e); }`. No capturar `Exception`: `SesionExpiradaException` tiene que propagarse para el logout automático.
+- Grillas: toda columna ordenable. Valores directos o texto → `.setSortable(true)`; columnas formateadas (fechas, precios) → `.setComparator(Dto::campo)` para ordenar por el valor real y no por el texto.
 - El menú/botones se ocultan con `SesionUsuario.tieneRol(...)`, pero el control real es la anotación de la vista (y el backend).
 - Clientes nuevos: copiar el patrón de `SucursalClient`.
 - DTOs: verificar los campos contra `../Columbia_Viajes_Backend/src/main/java/com/columbia/viajes/dto/` antes de crearlos/modificarlos.

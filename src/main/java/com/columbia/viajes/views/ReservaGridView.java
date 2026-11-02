@@ -28,6 +28,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -67,19 +68,22 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
         this.paqueteClient = paqueteClient;
         this.usuarioClient = usuarioClient;
 
-        grid.addColumn(ReservaResponse::id).setHeader("N°").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(r -> Formatos.fechaHora(r.fechaReserva())).setHeader("Fecha");
+        grid.addColumn(ReservaResponse::id).setHeader("N°").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(r -> Formatos.fechaHora(r.fechaReserva())).setHeader("Fecha")
+                .setComparator(ReservaResponse::fechaReserva);
         if (!esCliente) {
-            grid.addColumn(this::turista).setHeader("Turista");
+            grid.addColumn(this::turista).setHeader("Turista").setSortable(true);
         }
-        grid.addColumn(this::paquete).setHeader("Paquete");
-        grid.addColumn(this::estadia).setHeader("Estadía");
-        grid.addColumn(r -> r.claseVuelo() != null ? r.claseVuelo().getEtiqueta() : "").setHeader("Clase");
+        grid.addColumn(this::paquete).setHeader("Paquete").setSortable(true);
+        grid.addColumn(this::estadia).setHeader("Estadía").setComparator(this::inicioEstadia);
+        grid.addColumn(r -> r.claseVuelo() != null ? r.claseVuelo().getEtiqueta() : "")
+                .setHeader("Clase").setSortable(true);
         grid.addColumn(r -> r.regimenHospedaje() != null ? r.regimenHospedaje().getEtiqueta() : "")
-                .setHeader("Régimen");
-        grid.addColumn(r -> Formatos.precio(r.precioReserva())).setHeader("Precio");
+                .setHeader("Régimen").setSortable(true);
+        grid.addColumn(r -> Formatos.precio(r.precioReserva())).setHeader("Precio")
+                .setComparator(ReservaResponse::precioReserva);
         if (!esCliente) {
-            grid.addColumn(this::vendedor).setHeader("Vendedor");
+            grid.addColumn(this::vendedor).setHeader("Vendedor").setSortable(true);
         }
 
         if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
@@ -174,6 +178,12 @@ public class ReservaGridView extends VerticalLayout implements BeforeEnterObserv
     private String estadia(ReservaResponse r) {
         PaqueteResponse p = paquetes.get(r.paqueteId());
         return p != null ? Formatos.fecha(p.fechaLlegadaHotel()) + " al " + Formatos.fecha(p.fechaPartidaHotel()) : "";
+    }
+
+    /** Para ordenar la columna Estadía por fecha y no por el texto. */
+    private LocalDate inicioEstadia(ReservaResponse r) {
+        PaqueteResponse p = paquetes.get(r.paqueteId());
+        return p != null ? p.fechaLlegadaHotel() : null;
     }
 
     private String vendedor(ReservaResponse r) {

@@ -39,8 +39,8 @@ public class CiudadGridView extends VerticalLayout implements BeforeEnterObserve
         this.client = client;
         boolean puedeEditar = SesionUsuario.tieneRol(ADMIN);
 
-        grid.addColumn(CiudadResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0);
-        grid.addColumn(CiudadResponse::nombre).setHeader("Nombre");
+        grid.addColumn(CiudadResponse::id).setHeader("Código").setAutoWidth(true).setFlexGrow(0).setSortable(true);
+        grid.addColumn(CiudadResponse::nombre).setHeader("Nombre").setSortable(true);
         if (puedeEditar) {
             grid.addComponentColumn(this::crearAcciones).setHeader("Acciones").setAutoWidth(true).setFlexGrow(0);
         }
