@@ -5,6 +5,7 @@ import com.columbia.viajes.views.HomeView;
 import com.columbia.viajes.views.HotelGridView;
 import com.columbia.viajes.views.NuevaReservaView;
 import com.columbia.viajes.views.PaqueteCatalogoView;
+import com.columbia.viajes.views.RankingVendedoresView;
 import com.columbia.viajes.views.ReservaGridView;
 import com.columbia.viajes.views.SucursalGridView;
 import com.columbia.viajes.views.TuristaGridView;
@@ -99,6 +100,9 @@ public class MainLayout extends AppLayout {
             admin.setPrefixComponent(VaadinIcon.COG.create());
             admin.addItem(new SideNavItem("Usuarios", UsuarioGridView.class));
             admin.addItem(new SideNavItem("Sucursales", SucursalGridView.class));
+            if (SesionUsuario.tieneRol(DUENIO)) {
+                admin.addItem(new SideNavItem("Ranking de vendedores", RankingVendedoresView.class));
+            }
             nav.addItem(admin);
         }
 

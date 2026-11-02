@@ -1,6 +1,7 @@
 package com.columbia.viajes.client;
 
 import com.columbia.viajes.dto.request.ReservaRequest;
+import com.columbia.viajes.dto.response.RankingVendedorResponse;
 import com.columbia.viajes.dto.response.ReservaResponse;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
@@ -44,5 +45,13 @@ public class ReservaClient {
                 .body(request)
                 .retrieve()
                 .body(ReservaResponse.class);
+    }
+
+    /** Ranking de vendedores por total vendido (solo Dueño). */
+    public List<RankingVendedorResponse> rankingVendedores() {
+        return restClient.get()
+                .uri("/paquetes-reservas/ranking-vendedores")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<RankingVendedorResponse>>() {});
     }
 }
