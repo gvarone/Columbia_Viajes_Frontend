@@ -12,7 +12,8 @@ public final class Formatos {
 
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter FECHA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final Locale AR = Locale.of("es", "AR");
+    /** Idioma y región de la app: también lo usan los selectores de fecha. */
+    public static final Locale LOCALE_AR = Locale.of("es", "AR");
 
     private Formatos() {}
 
@@ -25,6 +26,6 @@ public final class Formatos {
     }
 
     public static String precio(BigDecimal monto) {
-        return monto == null ? "" : NumberFormat.getCurrencyInstance(AR).format(monto);
+        return monto == null ? "" : NumberFormat.getCurrencyInstance(LOCALE_AR).format(monto);
     }
 }

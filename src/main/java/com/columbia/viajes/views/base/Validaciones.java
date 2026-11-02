@@ -1,6 +1,7 @@
 package com.columbia.viajes.views.base;
 
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -46,6 +47,14 @@ public final class Validaciones {
         if (valor == null || valor < campo.getMin()) {
             campo.setInvalid(true);
             errores.add(campo.getLabel() + ": ingresá un número mayor o igual a " + campo.getMin() + ".");
+        }
+    }
+
+    /** Fecha y hora obligatoria (@NotNull). El DateTimePicker marca inválido un texto mal escrito. */
+    public static void fechaHora(DateTimePicker campo, List<String> errores) {
+        if (campo.isEmpty() || campo.isInvalid()) {
+            campo.setInvalid(true);
+            errores.add(campo.getLabel() + ": ingresá fecha y hora.");
         }
     }
 }

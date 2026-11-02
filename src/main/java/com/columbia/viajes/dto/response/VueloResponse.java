@@ -10,4 +10,4 @@ public record VueloResponse(
         LocalDateTime fechaLlegada,
         Integer plazasTuristaTotales,
         Integer plazasPrimeraTotales
-) {}
+) implements Identificable {}
