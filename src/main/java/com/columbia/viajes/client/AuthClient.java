@@ -1,5 +1,6 @@
 package com.columbia.viajes.client;
 
+import com.columbia.viajes.dto.request.CambioContraseniaRequest;
 import com.columbia.viajes.dto.request.LoginRequest;
 import com.columbia.viajes.dto.request.RegistroClienteRequest;
 import com.columbia.viajes.dto.response.LoginResponse;
@@ -34,6 +35,18 @@ public class AuthClient {
                 .body(request)
                 .retrieve()
                 .body(UsuarioResponse.class);
+    }
+
+    /**
+     * Cambia la contraseña del usuario logueado. El backend invalida el JWT actual,
+     * así que después hay que volver a iniciar sesión.
+     */
+    public void cambiarContrasenia(CambioContraseniaRequest request) {
+        restClient.post()
+                .uri("/auth/cambiar-contrasenia")
+                .body(request)
+                .retrieve()
+                .toBodilessEntity();
     }
 
     /**

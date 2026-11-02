@@ -26,7 +26,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 ## Estructura (`src/main/java/com/columbia/viajes/`)
 - `config/BackendConfig` — **único `RestClient`** hacia `backend.url`. Interceptor agrega `Authorization: Bearer <jwt>` del usuario logueado; un 401 en un request con token lanza `SesionExpiradaException`.
 - `config/ManejadorErroresVaadin` — ErrorHandler de sesión: `SesionExpiradaException` en un listener → `authContext.logout()`. Durante la navegación lo maneja `views/SesionExpiradaView` (`HasErrorParameter`).
-- `client/` — un `@Service` por recurso; reciben el `RestClient` por constructor, sin manejar tokens. `AuthClient` (login/logout/registrar).
+- `client/` — un `@Service` por recurso; reciben el `RestClient` por constructor, sin manejar tokens. `AuthClient` (login/logout/registrar/cambiarContrasenia).
 - `dto/request`, `dto/response` — records que replican los DTOs del backend. `dto/enums` — `ClaseVuelo`, `RegimenHospedaje` (con `getEtiqueta()` para la UI).
 - `security/`:
   - `SecurityConfig` — Spring Security + `VaadinSecurityConfigurer` (login view, CSRF, logout; el logout también llama a `POST /auth/logout`).
@@ -34,7 +34,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
   - `SesionUsuario` — helpers estáticos de solo lectura sobre el `SecurityContext` (`getUsuario`, `getToken`, `getRol`, `tieneRol(...)`).
   - `Roles` — constantes para `@RolesAllowed` (`ADMIN`, `VENDEDOR`, `CLIENTE`, `DUENIO`), iguales a `RolEnum.name()`.
 - `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios).
-- `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos) y `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal).
+- `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos) `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal), `PerfilView` (`GET /usuarios/me`, solo lectura; datos de turista si es Cliente) y `CambiarContraseniaDialog` (al cambiarla el backend invalida el JWT, así que avisa y hace logout).
 - Imágenes de paquetes: las pide el servidor Vaadin (`PaqueteClient.imagen`) y se sirven con `DownloadHandler.fromInputStream`; el navegador nunca llama directo al backend.
 - `views/TuristaForm` — campos y validaciones de turista + cuenta Cliente, compartido por `TuristaDialog` y `RegistroView` (no duplicar).
 
@@ -49,6 +49,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 | Turistas (+alta) | | x | x | |
 | Usuarios, Sucursales | | | x | x (solo ver) |
 | Ranking de vendedores | | | | x |
+| Mi perfil, cambiar contraseña | x | x | x | x |
 
 ## Convenciones
 - Código, nombres y mensajes en español (`listar`, `crear`, `contrasenia`, `Duenio`).
@@ -100,11 +101,11 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 
 ## Pendientes según la consigna
 **Funcionalidad por rol**:
-- **Cliente**: registro, consulta de vuelos/hoteles/paquetes y "Mis reservas" hechos; falta "mi perfil" (el backend ya tiene `GET /usuarios/me`).
+- **Cliente**: registro, consulta de vuelos/hoteles/paquetes y "Mis reservas" hechos; y "Mi perfil" (solo lectura) hechos.
 - **Vendedor**: alta, edición (clase/régimen) y cancelación de reservas, catálogo con "Reservar" y alta de turistas hechos; falta edición de turistas.
 - **Administrador**: faltan los ABM (alta/edición/baja) de usuarios, sucursales, hoteles, vuelos, paquetes y ciudades (hoy solo lectura).
 - **Dueño**: ranking de vendedores hecho.
-- Cambio de contraseña (el backend ya tiene `POST /auth/cambiar-contrasenia`).
+- Cambio de contraseña: hecho (desde "Mi perfil", todos los roles).
 
 **Entregables** (`../Consignas`):
 - Repo en GitHub completo y ejecutable, con todos los integrantes como colaboradores activos.

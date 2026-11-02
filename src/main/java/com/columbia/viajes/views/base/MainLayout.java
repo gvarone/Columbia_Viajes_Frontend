@@ -5,6 +5,7 @@ import com.columbia.viajes.views.HomeView;
 import com.columbia.viajes.views.HotelGridView;
 import com.columbia.viajes.views.NuevaReservaView;
 import com.columbia.viajes.views.PaqueteCatalogoView;
+import com.columbia.viajes.views.PerfilView;
 import com.columbia.viajes.views.RankingVendedoresView;
 import com.columbia.viajes.views.ReservaGridView;
 import com.columbia.viajes.views.SucursalGridView;
@@ -105,6 +106,8 @@ public class MainLayout extends AppLayout {
             }
             nav.addItem(admin);
         }
+
+        nav.addItem(new SideNavItem("Mi perfil", PerfilView.class, VaadinIcon.USER.create()));
 
         addToDrawer(nav);
     }
