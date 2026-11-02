@@ -63,7 +63,7 @@ public class HomeView extends VerticalLayout {
                 SesionUsuario.tieneRol(VENDEDOR) ? "Paquetes de tu sucursal para reservar."
                         : "Paquetes de viaje disponibles.",
                 PaqueteCatalogoView.class, !SesionUsuario.tieneRol(VENDEDOR)));
-        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
+        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN, DUENIO)) {
             catalogo.add(tarjeta(VaadinIcon.USERS, "Turistas",
                     "Registrar y consultar turistas.", TuristaGridView.class, false));
         }

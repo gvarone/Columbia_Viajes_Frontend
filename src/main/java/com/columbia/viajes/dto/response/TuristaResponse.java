@@ -8,4 +8,4 @@ public record TuristaResponse(
         String email,
         String telefono,
         Integer usuarioId
-) {}
+) implements Identificable {}

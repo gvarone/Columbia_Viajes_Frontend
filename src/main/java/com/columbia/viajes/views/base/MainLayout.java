@@ -90,7 +90,7 @@ public class MainLayout extends AppLayout {
         SideNavItem catalogo = new SideNavItem("Catálogo");
         catalogo.setPrefixComponent(VaadinIcon.AIRPLANE.create());
         catalogo.addItem(new SideNavItem("Paquetes", PaqueteCatalogoView.class));
-        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN)) {
+        if (SesionUsuario.tieneRol(VENDEDOR, ADMIN, DUENIO)) {
             catalogo.addItem(new SideNavItem("Turistas", TuristaGridView.class));
         }
         catalogo.addItem(new SideNavItem("Vuelos", VueloGridView.class));

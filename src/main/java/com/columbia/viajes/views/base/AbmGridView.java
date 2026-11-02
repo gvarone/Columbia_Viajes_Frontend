@@ -48,7 +48,7 @@ public abstract class AbmGridView<T extends Identificable, R> extends VerticalLa
 
         Button nuevo = new Button(textoNuevo, VaadinIcon.PLUS.create(), e -> abrirDialogo(null));
         nuevo.addThemeVariants(ButtonVariant.PRIMARY);
-        nuevo.setVisible(puedeEditar());
+        nuevo.setVisible(puedeCrear());
 
         HorizontalLayout encabezado = new HorizontalLayout(new H2(titulo), nuevo);
         encabezado.setWidthFull();
@@ -72,6 +72,11 @@ public abstract class AbmGridView<T extends Identificable, R> extends VerticalLa
 
     /** Descripción para los mensajes, con artículo: la ciudad "CABA". */
     protected abstract String descripcion(T item);
+
+    /** Si se muestra el botón "Nuevo". Por defecto, los mismos que pueden editar. */
+    protected boolean puedeCrear() {
+        return puedeEditar();
+    }
 
     /**
      * Si un registro puntual se puede editar/eliminar (además de {@link #puedeEditar()}).

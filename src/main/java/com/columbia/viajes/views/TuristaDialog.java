@@ -1,41 +1,45 @@
 package com.columbia.viajes.views;
 
-import com.columbia.viajes.client.TuristaClient;
+import com.columbia.viajes.client.ClienteAbm;
+import com.columbia.viajes.dto.request.RegistroClienteRequest;
 import com.columbia.viajes.dto.response.TuristaResponse;
-import com.columbia.viajes.views.base.Notificaciones;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
+import com.columbia.viajes.views.base.AbmDialog;
 import java.util.List;
 import java.util.function.Consumer;
-import org.springframework.web.client.RestClientException;
 
-/** Alta de turista con su cuenta Cliente, hecha por personal de la sucursal. */
-public class TuristaDialog extends Dialog {
+/**
+ * Alta de turista con su cuenta Cliente, o edición de sus datos personales.
+ * Lo usan la grilla de Turistas y "Hacer reserva" (que preselecciona el turista creado):
+ * por eso avisa al terminar con el turista guardado (alGuardar).
+ */
+public class TuristaDialog extends AbmDialog<TuristaResponse, RegistroClienteRequest> {
 
-    private final TuristaForm formulario =
-            new TuristaForm("El turista puede cambiarla después de iniciar sesión.");
+    private final TuristaForm formulario;
+    private final Consumer<TuristaResponse> alGuardar;
 
-    public TuristaDialog(TuristaClient client, Consumer<TuristaResponse> alCrear) {
-        setHeaderTitle("Nuevo turista");
+    public TuristaDialog(ClienteAbm<TuristaResponse, RegistroClienteRequest> client, TuristaResponse turista,
+                         Consumer<TuristaResponse> alGuardar) {
+        super(client, turista, "turista", () -> { });
+        this.alGuardar = alGuardar;
+        this.formulario = new TuristaForm(!esEdicion(), "El turista puede cambiarla después de iniciar sesión.");
+        if (esEdicion()) {
+            formulario.cargar(turista);
+        }
         add(formulario);
+    }
 
-        Button guardar = new Button("Guardar", e -> {
-            List<String> errores = formulario.validar();
-            if (!errores.isEmpty()) {
-                Notificaciones.error(String.join(" ", errores));
-                return;
-            }
-            try {
-                TuristaResponse creado = client.crear(formulario.armarRequest());
-                Notificaciones.exito("Turista creado.");
-                alCrear.accept(creado);
-                close();
-            } catch (RestClientException ex) {
-                Notificaciones.error("No se pudo crear el turista", ex);
-            }
-        });
-        guardar.addThemeVariants(ButtonVariant.PRIMARY);
-        getFooter().add(new Button("Cancelar", e -> close()), guardar);
+    @Override
+    protected List<String> validar() {
+        return formulario.validar();
+    }
+
+    @Override
+    protected RegistroClienteRequest armarRequest() {
+        return formulario.armarRequest();
+    }
+
+    @Override
+    protected void despuesDeGuardar(TuristaResponse guardado) {
+        alGuardar.accept(guardado);
     }
 }

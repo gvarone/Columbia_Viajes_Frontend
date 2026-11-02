@@ -66,7 +66,7 @@ public class NuevaReservaView extends VerticalLayout implements BeforeEnterObser
         turista.setWidthFull();
 
         Button nuevoTurista = new Button("Nuevo turista", e ->
-                new TuristaDialog(turistaClient, creado -> {
+                new TuristaDialog(turistaClient, null, creado -> {
                     cargarTuristas();
                     turista.setValue(creado);
                 }).open());
