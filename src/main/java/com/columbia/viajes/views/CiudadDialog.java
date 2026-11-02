@@ -4,6 +4,7 @@ import com.columbia.viajes.client.ClienteAbm;
 import com.columbia.viajes.dto.request.CiudadRequest;
 import com.columbia.viajes.dto.response.CiudadResponse;
 import com.columbia.viajes.views.base.AbmDialog;
+import com.columbia.viajes.views.base.Validaciones;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +30,7 @@ public class CiudadDialog extends AbmDialog<CiudadResponse, CiudadRequest> {
     @Override
     protected List<String> validar() {
         List<String> errores = new ArrayList<>();
-        int largo = nombre.getValue().trim().length();
-        if (largo < 2 || largo > 100) {
-            nombre.setInvalid(true);
-            errores.add("El nombre debe tener entre 2 y 100 caracteres.");
-        }
+        Validaciones.largo(nombre, errores);
         return errores;
     }
 

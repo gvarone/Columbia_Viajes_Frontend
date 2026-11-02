@@ -6,4 +6,4 @@ public record SucursalResponse(
         String direccion,
         String email,
         String telefono
-) {}
+) implements Identificable {}

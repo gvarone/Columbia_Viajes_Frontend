@@ -33,7 +33,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
   - `BackendAuthenticationProvider` — valida credenciales contra `POST /auth/login`; principal = `UsuarioAutenticado(nombre, rol, token)`, autoridad `ROLE_<RolEnum.name()>`.
   - `SesionUsuario` — helpers estáticos de solo lectura sobre el `SecurityContext` (`getUsuario`, `getToken`, `getRol`, `tieneRol(...)`).
   - `Roles` — constantes para `@RolesAllowed` (`ADMIN`, `VENDEDOR`, `CLIENTE`, `DUENIO`), iguales a `RolEnum.name()`.
-- `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios).
+- `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios), `Validaciones` (largo y email de campos, replican `@Size`/`@Email` del backend).
 - `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos) `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal), `CiudadGridView` + `CiudadDialog` (ABM de referencia, ver "ABM" abajo), `PerfilView` (`GET /usuarios/me`, solo lectura; datos de turista si es Cliente) y `CambiarContraseniaDialog` (al cambiarla el backend invalida el JWT, así que avisa y hace logout).
 - Imágenes de paquetes: las pide el servidor Vaadin (`PaqueteClient.imagen`) y se sirven con `DownloadHandler.fromInputStream`; el navegador nunca llama directo al backend.
 - **ABM** (base en `views/base/`, ejemplo completo: ciudades):
@@ -51,8 +51,8 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 | Hacer reserva | | x | | |
 | Reservas | x ("Mis reservas", solo ver) | x (+editar/cancelar, solo su sucursal) | x (+editar/cancelar) | x (solo ver) |
 | Turistas (+alta) | | x | x | |
-| Usuarios, Sucursales | | | x | x (solo ver) |
-| Ciudades | | | x (ABM) | x (solo ver) |
+| Usuarios | | | x | x (solo ver) |
+| Sucursales, Ciudades | | | x (ABM) | x (solo ver) |
 | Ranking de vendedores | | | | x |
 | Mi perfil, cambiar contraseña | x | x | x | x |
 
@@ -109,7 +109,7 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 **Funcionalidad por rol**:
 - **Cliente**: registro, consulta de vuelos/hoteles/paquetes y "Mis reservas" hechos; y "Mi perfil" (solo lectura) hechos.
 - **Vendedor**: alta, edición (clase/régimen) y cancelación de reservas, catálogo con "Reservar" y alta de turistas hechos; falta edición de turistas.
-- **Administrador**: ABM de ciudades hecho; faltan los de sucursales, hoteles, vuelos, paquetes y usuarios (hoy solo lectura). Los ABM los edita solo el Admin; el Dueño consulta.
+- **Administrador**: ABM de ciudades y sucursales hechos; faltan los de hoteles, vuelos, paquetes y usuarios (hoy solo lectura). Los ABM los edita solo el Admin; el Dueño consulta.
 - **Dueño**: ranking de vendedores hecho.
 - Cambio de contraseña: hecho (desde "Mi perfil", todos los roles).
 

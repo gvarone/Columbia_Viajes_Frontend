@@ -2,6 +2,7 @@ package com.columbia.viajes.views;
 
 import com.columbia.viajes.dto.request.RegistroClienteRequest;
 import com.columbia.viajes.dto.request.TuristaRequest;
+import com.columbia.viajes.views.base.Validaciones;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -50,18 +51,9 @@ public class TuristaForm extends VerticalLayout {
     public List<String> validar() {
         List<String> errores = new ArrayList<>();
         for (TextField campo : List.of(nombre, apellidos, direccion, telefono, nombreUsuario)) {
-            int largo = campo.getValue().trim().length();
-            if (largo < campo.getMinLength() || largo > campo.getMaxLength()) {
-                campo.setInvalid(true);
-                errores.add(campo.getLabel() + ": entre " + campo.getMinLength()
-                        + " y " + campo.getMaxLength() + " caracteres.");
-            }
+            Validaciones.largo(campo, errores);
         }
-        String mail = email.getValue().trim();
-        if (mail.isEmpty() || email.isInvalid()) {
-            email.setInvalid(true);
-            errores.add("Email: ingresá un email válido.");
-        }
+        Validaciones.email(email, errores);
         // La contraseña no se recorta: los espacios forman parte de ella
         String clave = contrasenia.getValue();
         if (clave.isBlank() || clave.length() < 8 || clave.length() > 64) {
