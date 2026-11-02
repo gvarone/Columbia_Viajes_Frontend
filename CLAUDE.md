@@ -34,7 +34,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
   - `SesionUsuario` — helpers estáticos de solo lectura sobre el `SecurityContext` (`getUsuario`, `getToken`, `getRol`, `tieneRol(...)`).
   - `Roles` — constantes para `@RolesAllowed` (`ADMIN`, `VENDEDOR`, `CLIENTE`, `DUENIO`), iguales a `RolEnum.name()`.
 - `views/base/` — `MainLayout` (`@PermitAll`, menú según rol), `Notificaciones` (éxito/error + mensaje legible de errores del backend), `Formatos` (fechas/precios).
-- `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos) `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal), `PerfilView` (`GET /usuarios/me`, solo lectura; datos de turista si es Cliente) y `CambiarContraseniaDialog` (al cambiarla el backend invalida el JWT, así que avisa y hace logout).
+- `views/` — `LoginView` (`LoginForm` que postea a `/login`, link a registro), `RegistroView` (registro público), `HomeView`, grillas `Reserva/Turista/Vuelo/Hotel/Usuario/SucursalGridView`, `NuevaReservaView` (acepta `?paquete=<id>` para preseleccionar), `EditarReservaDialog` (solo clase y régimen), `TuristaDialog`, `PaqueteCatalogoView` (tarjetas + filtros nombre/ciudad/hotel), `PaqueteDetalleDialog` (hotel y vuelos) `RankingVendedoresView` (Dueño; el orden viene del backend, la vista agrega puesto y dirección de sucursal), `CiudadGridView` + `CiudadDialog` (primer ABM: patrón a copiar en los demás — dialog único para alta/edición según reciba o no el objeto, columna de acciones y botón "Nuevo" solo para Admin, baja con `ConfirmDialog`), `PerfilView` (`GET /usuarios/me`, solo lectura; datos de turista si es Cliente) y `CambiarContraseniaDialog` (al cambiarla el backend invalida el JWT, así que avisa y hace logout).
 - Imágenes de paquetes: las pide el servidor Vaadin (`PaqueteClient.imagen`) y se sirven con `DownloadHandler.fromInputStream`; el navegador nunca llama directo al backend.
 - `views/TuristaForm` — campos y validaciones de turista + cuenta Cliente, compartido por `TuristaDialog` y `RegistroView` (no duplicar).
 
@@ -48,6 +48,7 @@ No hay tests todavía (`browserless-test-spring` está en el pom pero sin uso).
 | Reservas | x ("Mis reservas", solo ver) | x (+editar/cancelar, solo su sucursal) | x (+editar/cancelar) | x (solo ver) |
 | Turistas (+alta) | | x | x | |
 | Usuarios, Sucursales | | | x | x (solo ver) |
+| Ciudades | | | x (ABM) | x (solo ver) |
 | Ranking de vendedores | | | | x |
 | Mi perfil, cambiar contraseña | x | x | x | x |
 
@@ -103,7 +104,7 @@ Las reservas son sobre **paquetes** (`Paquete` = vuelo ida + vuelo vuelta + hote
 **Funcionalidad por rol**:
 - **Cliente**: registro, consulta de vuelos/hoteles/paquetes y "Mis reservas" hechos; y "Mi perfil" (solo lectura) hechos.
 - **Vendedor**: alta, edición (clase/régimen) y cancelación de reservas, catálogo con "Reservar" y alta de turistas hechos; falta edición de turistas.
-- **Administrador**: faltan los ABM (alta/edición/baja) de usuarios, sucursales, hoteles, vuelos, paquetes y ciudades (hoy solo lectura).
+- **Administrador**: ABM de ciudades hecho; faltan los de sucursales, hoteles, vuelos, paquetes y usuarios (hoy solo lectura). Los ABM los edita solo el Admin; el Dueño consulta.
 - **Dueño**: ranking de vendedores hecho.
 - Cambio de contraseña: hecho (desde "Mi perfil", todos los roles).
 

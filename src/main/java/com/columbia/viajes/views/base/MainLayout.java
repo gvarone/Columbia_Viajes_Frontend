@@ -1,6 +1,7 @@
 package com.columbia.viajes.views.base;
 
 import com.columbia.viajes.security.SesionUsuario;
+import com.columbia.viajes.views.CiudadGridView;
 import com.columbia.viajes.views.HomeView;
 import com.columbia.viajes.views.HotelGridView;
 import com.columbia.viajes.views.NuevaReservaView;
@@ -101,6 +102,7 @@ public class MainLayout extends AppLayout {
             admin.setPrefixComponent(VaadinIcon.COG.create());
             admin.addItem(new SideNavItem("Usuarios", UsuarioGridView.class));
             admin.addItem(new SideNavItem("Sucursales", SucursalGridView.class));
+            admin.addItem(new SideNavItem("Ciudades", CiudadGridView.class));
             if (SesionUsuario.tieneRol(DUENIO)) {
                 admin.addItem(new SideNavItem("Ranking de vendedores", RankingVendedoresView.class));
             }
